@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0f1a">
+<title>CEO: Do Zero ao Império</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CEO">
+<style>
+:root{--bg:#0b0f1a;--bg2:#10172a;--card:#161e33;--card2:#1f2944;--line:#2a3552;--tx:#eef1f7;--mu:#8d97ad;--gold:#e8b54d;--gold2:#ffd27a;--green:#45d38a;--red:#ff6b6b;--blue:#5aa9ff}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#05070d;color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none}
+input{-webkit-user-select:text;user-select:text}
+#app{position:relative;max-width:480px;height:100%;margin:0 auto;background:var(--bg);overflow:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column}
+.screen.on{display:flex}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.btn{display:block;width:100%;padding:15px;border-radius:14px;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1d1406;font-weight:800;font-size:16px;letter-spacing:.2px;transition:transform .1s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn.sec{background:var(--card2);color:var(--tx);font-weight:700}
+.btn.red{background:#3a1d24;color:var(--red)}
+.btn:disabled{opacity:.38;pointer-events:none}
+.btn.sm{padding:11px 12px;font-size:14px;border-radius:12px}
+.row{display:flex;gap:10px;align-items:center}
+.mu{color:var(--mu)}
+.gold{color:var(--gold2)}
+.green{color:var(--green)}
+.red{color:var(--red)}
+small{font-size:12px}
+
+/* SPLASH */
+#splash{align-items:center;justify-content:center;background:#000}
+.splash-in{text-align:center;opacity:0;animation:fadeio 2.6s ease forwards}
+.logo-m{width:84px;height:84px;margin:0 auto 14px;border:3px solid var(--gold);border-radius:22px;display:grid;place-items:center;font-size:46px;font-weight:900;color:var(--gold)}
+.logo-t{font-size:22px;font-weight:900;letter-spacing:6px}
+.logo-s{font-size:12px;letter-spacing:8px;color:var(--gold);margin-top:6px}
+@keyframes fadeio{0%{opacity:0;transform:scale(.96)}25%{opacity:1;transform:scale(1)}78%{opacity:1}100%{opacity:0}}
+
+/* HOME */
+#home{justify-content:flex-end;background:radial-gradient(120% 70% at 50% 10%,#1b2747 0%,#0b0f1a 60%)}
+.skyline{position:absolute;left:0;right:0;bottom:38%;height:240px}
+.home-c{position:relative;padding:28px 24px calc(28px + env(safe-area-inset-bottom))}
+.brand{text-align:center;margin-bottom:34px}
+.brand small{letter-spacing:3px;color:var(--mu);font-size:11px}
+.brand h1{font-size:86px;font-weight:900;letter-spacing:6px;line-height:1;margin-top:8px;background:linear-gradient(180deg,#fff2c8,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand h2{font-size:17px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:#cfd6e6;margin-top:6px}
+.home-btns{display:grid;gap:10px}
+.update{margin-top:16px;text-align:center;font-size:13px;color:var(--mu);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+.update b{color:var(--gold2)}
+
+/* CREATE */
+#create{background:var(--bg)}
+.cr-body{flex:1;overflow-y:auto;padding:22px 20px 12px}
+.cr-body h2{font-size:24px;margin-bottom:4px}
+.cr-prev{display:flex;justify-content:center;margin:16px 0}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--mu);margin-bottom:8px}
+.inp{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--tx);font-size:17px;outline:none}
+.inp:focus{border-color:var(--gold)}
+.sw{display:flex;gap:10px;flex-wrap:wrap}
+.sw button{width:40px;height:40px;border-radius:50%;border:3px solid transparent}
+.sw button.on{border-color:var(--gold2)}
+.sw.txt button{width:auto;height:auto;border-radius:10px;padding:8px 12px;background:var(--card);border:2px solid var(--line);font-size:14px}
+.sw.txt button.on{border-color:var(--gold)}
+.perfis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.perfil{text-align:left;padding:12px;border-radius:14px;background:var(--card);border:2px solid var(--line)}
+.perfil.on{border-color:var(--gold);background:#231f17}
+.perfil b{display:block;font-size:15px;margin-bottom:3px}
+.perfil span{font-size:12px;color:var(--mu)}
+.cr-foot{padding:12px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+
+/* GAME */
+#game{background:var(--bg)}
+.top{padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:linear-gradient(180deg,#141c31,#0f1527);border-bottom:1px solid var(--line)}
+.top-row{display:flex;justify-content:space-between;align-items:center}
+.me{display:flex;align-items:center;gap:10px}
+.me .av{width:40px;height:40px}
+.me b{font-size:15px;display:block}
+.me small{color:var(--mu)}
+.cash{text-align:right}
+.cash small{display:block;color:var(--mu);font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.cash b{font-size:22px;color:var(--gold2);font-variant-numeric:tabular-nums}
+.cash b.neg{color:var(--red)}
+.top-row2{display:flex;align-items:center;gap:10px;margin-top:9px;font-size:13px}
+.daybar{flex:1;height:6px;background:#26304a;border-radius:4px;overflow:hidden}
+.daybar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px}
+.chip{padding:3px 9px;border-radius:20px;background:var(--card2);font-size:12px;white-space:nowrap}
+#view{flex:1;overflow-y:auto;padding:14px 14px 20px}
+.tabs{display:flex;border-top:1px solid var(--line);background:#0e1424;padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;padding:9px 0 10px;font-size:11px;color:var(--mu);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+.tabs button i{font-style:normal;font-size:21px;filter:grayscale(1);opacity:.7}
+.tabs button.on{color:var(--gold2)}
+.tabs button.on i{filter:none;opacity:1}
+.tabs .dot{position:absolute;top:6px;right:calc(50% - 18px);width:8px;height:8px;border-radius:50%;background:var(--red);display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.card h3{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--mu);margin-bottom:10px;font-weight:700}
+.hq{padding:0;overflow:hidden}
+.hq svg{display:block;width:100%;height:auto}
+.hq-info{padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.hq-info b{font-size:17px}
+.obj{border-color:#5a4520;background:linear-gradient(180deg,#221c12,#18150f)}
+.obj .cap{font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;font-weight:800}
+.obj .tt{font-size:18px;font-weight:800;margin:4px 0 6px}
+.prog{height:8px;background:#34291a;border-radius:6px;overflow:hidden;margin-top:10px}
+.prog i{display:block;height:100%;background:var(--gold);border-radius:6px;transition:width .3s}
+.fin{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.fin div{background:var(--bg2);border-radius:12px;padding:10px 4px}
+.fin small{display:block;color:var(--mu);font-size:11px;margin-bottom:3px}
+.fin b{font-size:15px;font-variant-numeric:tabular-nums}
+.co{display:flex;gap:12px;align-items:center;width:100%;text-align:left}
+.co-ic{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;font-size:26px;flex-shrink:0}
+.co-m{flex:1;min-width:0}
+.co-m b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.co-m small{color:var(--mu)}
+.co-r{text-align:right;font-size:14px;font-variant-numeric:tabular-nums}
+.co-r small{display:block;color:var(--mu);font-size:11px}
+.warn{font-size:12px;color:#ffb35c;margin-top:4px}
+.empty{text-align:center;color:var(--mu);padding:22px 10px;font-size:14px}
+
+/* SHEET */
+.sheet{position:absolute;inset:0;z-index:30;display:none}
+.sheet.on{display:block}
+.sheet-bg{position:absolute;inset:0;background:rgba(3,5,10,.6)}
+.sheet-p{position:absolute;left:0;right:0;bottom:0;max-height:92%;background:var(--bg2);border-radius:22px 22px 0 0;border-top:1px solid var(--line);display:flex;flex-direction:column;animation:up .22s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sh-head{display:flex;align-items:center;gap:10px;padding:14px 16px 10px}
+.sh-head h2{flex:1;font-size:19px}
+.sh-x{width:36px;height:36px;border-radius:50%;background:var(--card2);font-size:16px}
+.sh-body{overflow-y:auto;padding:4px 16px calc(18px + env(safe-area-inset-bottom))}
+.ramos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.ramo{padding:14px 12px;border-radius:16px;background:var(--card);border:2px solid var(--line);text-align:left;position:relative}
+.ramo.on{border-color:var(--gold);background:#221d14}
+.ramo .e{font-size:30px}
+.ramo b{display:block;font-size:15px;margin-top:6px}
+.ramo small{color:var(--mu)}
+.ramo.lock{opacity:.45}
+.ramo .lk{position:absolute;top:10px;right:10px;font-size:14px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}.kv>:last-child{text-align:right}
+.kv:last-child{border:0}
+.cg{margin-bottom:14px}
+.cg-h{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin-bottom:8px}
+.ess{font-size:10px;letter-spacing:1px;padding:2px 6px;border-radius:6px;background:#3a2c14;color:var(--gold2);text-transform:uppercase}
+.slot{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:14px;background:var(--card);border:1px solid var(--line);margin-bottom:8px;text-align:left}
+.slot.free{border-style:dashed;justify-content:center;color:var(--gold2);font-weight:700;padding:14px}
+.slot .av{width:44px;height:44px;flex-shrink:0}
+.slot .m{flex:1;min-width:0}
+.slot .m b{font-size:15px;display:block}
+.st{color:var(--gold2);letter-spacing:1px;font-size:13px}
+.tr{display:inline-block;font-size:11px;padding:2px 7px;border-radius:7px;background:var(--card2);margin-left:4px}
+.mbar{height:5px;background:#2b3450;border-radius:4px;overflow:hidden;margin-top:5px}
+.mbar i{display:block;height:100%;border-radius:4px}
+.cand{display:block;width:100%;text-align:left;padding:12px;border-radius:16px;background:var(--card);border:2px solid var(--line);margin-bottom:10px}
+.cand.on{border-color:var(--gold);background:#211c13}
+.cand .top2{display:flex;gap:12px;align-items:center}
+.cand .av{width:52px;height:52px}
+.cand .det{margin-top:10px;font-size:13px;color:#cfd6e6;display:none}
+.cand.on .det{display:block}
+.lockc{padding:12px;border-radius:14px;border:1px dashed var(--line);color:var(--mu);font-size:13px;margin-bottom:8px;text-align:center}
+.acts{display:grid;gap:8px;margin-top:6px}
+
+/* TOASTS */
+#toasts{position:absolute;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));z-index:40;pointer-events:none;display:flex;flex-direction:column;gap:8px}
+.toast{background:rgba(22,30,51,.97);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:10px 12px;font-size:13px;animation:tin .25s ease;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast.good{border-left-color:var(--green)}.toast.bad{border-left-color:var(--red)}
+@keyframes tin{from{transform:translateY(-10px);opacity:0}to{transform:none;opacity:1}}
+
+/* STORY */
+.overlay{position:absolute;inset:0;z-index:50;display:none}
+.overlay.on{display:block}
+#story{background:radial-gradient(120% 80% at 50% 20%,#25314f 0%,#0a0e18 70%)}
+.st-portrait{position:absolute;left:0;right:0;bottom:240px;display:flex;justify-content:center;transition:opacity .25s}
+.st-portrait .av{width:220px;height:220px;filter:drop-shadow(0 18px 30px rgba(0,0,0,.5))}
+.st-box{position:absolute;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom));min-height:200px;background:rgba(13,18,32,.96);border:1px solid #3a4666;border-radius:20px;padding:30px 18px 18px}
+.st-name{position:absolute;top:-15px;left:18px;background:var(--gold);color:#1d1406;font-weight:900;padding:5px 14px;border-radius:10px;font-size:14px;letter-spacing:.5px}
+.st-name:empty{display:none}
+.st-text{font-size:17px;line-height:1.5;min-height:100px}
+.st-text.narr{font-style:italic;color:#cfd6e6;text-align:center;padding-top:8px}
+.st-hint{position:absolute;right:16px;bottom:10px;font-size:11px;color:var(--mu);animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.3}}
+.st-choices{display:grid;gap:8px;margin-top:12px}
+.st-skip{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.08);font-size:13px;color:var(--mu)}
+.st-title{position:absolute;top:calc(60px + env(safe-area-inset-top));left:0;right:0;text-align:center;font-size:12px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;font-weight:800}
+
+/* EVENT */
+#evt{background:rgba(3,5,10,.75);display:none;align-items:center;justify-content:center;padding:20px}
+#evt.on{display:flex}
+.evt-card{width:100%;max-width:420px;background:linear-gradient(180deg,#1d2640,#141b2e);border:1px solid #3a4666;border-radius:22px;padding:22px 18px 18px;text-align:center;animation:pop .25s ease}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.evt-ic{font-size:44px;display:flex;justify-content:center}
+.evt-ic .av{width:96px;height:96px}
+.evt-tag{font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;font-weight:800;margin-top:8px}
+.evt-card h3{font-size:21px;margin:6px 0 8px}
+.evt-card p{font-size:15px;line-height:1.5;color:#d4dbea;margin-bottom:16px}
+.opt{display:block;width:100%;padding:13px 14px;border-radius:14px;background:var(--card2);border:1px solid var(--line);margin-bottom:8px;text-align:left}
+.opt b{display:block;font-size:15px}
+.opt small{color:var(--mu)}
+.opt:active{border-color:var(--gold)}
+
+.ceo-h{display:flex;gap:14px;align-items:center}
+.ceo-h .av{width:84px;height:84px}
+.attr{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.attr:last-child{border:0}
+.attr .n{flex:1}
+.attr .n small{display:block;color:var(--mu)}
+.pips{display:flex;gap:3px}
+.pips i{width:8px;height:14px;border-radius:2px;background:#2b3450}
+.pips i.f{background:var(--gold)}
+.plus{width:32px;height:32px;border-radius:10px;background:var(--gold);color:#1d1406;font-weight:900;font-size:18px}
+.leg{position:relative;height:10px;border-radius:6px;background:linear-gradient(90deg,#ff6b6b,#3a4666 50%,#45d38a);margin:10px 0 6px}
+.leg i{position:absolute;top:-4px;width:6px;height:18px;border-radius:3px;background:#fff;transform:translateX(-3px)}
+.chap{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.chap:last-child{border:0}
+.chap .s{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:14px;background:var(--card2);flex-shrink:0}
+.chap .s.ok{background:#1f3a2c;color:var(--green)}
+.chap .s.cur{background:var(--gold);color:#1d1406}
+.chap .m{flex:1}
+.chap .m small{color:var(--mu);display:block}
+.licao{padding:10px 12px;border-radius:12px;background:#201b12;border:1px solid #4a3a1c;margin-bottom:8px;font-size:14px}
+.licao i{color:#e9dcc0}
+.licao small{display:block;color:var(--gold2);margin-top:4px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="splash" class="screen on"><div class="splash-in"><div class="logo-m">M</div><div class="logo-t">MORAIS STUDIO</div><div class="logo-s">DESENVOLVEDOR</div></div></div>
+
+<div id="home" class="screen">
+  <svg class="skyline" viewBox="0 0 480 240" preserveAspectRatio="xMidYMax slice" id="skyline"></svg>
+  <div class="home-c">
+    <div class="brand"><small>MORAIS STUDIO APRESENTA</small><h1>CEO</h1><h2>Do Zero ao Império</h2></div>
+    <div class="home-btns">
+      <button class="btn" id="bContinue">Continuar</button>
+      <button class="btn sec" id="bNew">Novo jogo</button>
+    </div>
+    <div class="update"><b>Nova atualização</b> · Base do jogo (v0.1)</div>
+  </div>
+</div>
+
+<div id="create" class="screen">
+  <div class="cr-body" id="crBody"></div>
+  <div class="cr-foot"><button class="btn" id="bStart">Começar minha história</button></div>
+</div>
+
+<div id="game" class="screen">
+  <header class="top">
+    <div class="top-row">
+      <div class="me" id="tMe"></div>
+      <div class="cash"><small>Caixa</small><b id="tMoney">R$ 0</b></div>
+    </div>
+    <div class="top-row2"><span id="tDay">Dia 1</span><div class="daybar"><i id="tDayBar"></i></div><span class="chip" id="tRep">⭐ 30</span></div>
+  </header>
+  <main id="view"></main>
+  <nav class="tabs" id="tabs">
+    <button data-t="hq" class="on"><i>🏢</i>Escritório</button>
+    <button data-t="cos"><i>💼</i>Empresas<span class="dot" id="dotCos"></span></button>
+    <button data-t="story"><i>📖</i>História</button>
+    <button data-t="ceo"><i>👤</i>CEO<span class="dot" id="dotCeo"></span></button>
+  </nav>
+  <div id="sheet" class="sheet"><div class="sheet-bg" id="sheetBg"></div><div class="sheet-p" id="sheetP"></div></div>
+  <div id="toasts"></div>
+</div>
+
+<div id="story" class="overlay">
+  <div class="st-title" id="stTitle"></div>
+  <div class="st-portrait" id="stP"></div>
+  <div class="st-box" id="stBox"><div class="st-name" id="stN"></div><div class="st-text" id="stT"></div><div class="st-choices" id="stC"></div><div class="st-hint" id="stHint">toque para continuar ▸</div></div>
+  <button class="st-skip" id="stSkip">Pular ▸▸</button>
+</div>
+
+<div id="evt" class="overlay"><div class="evt-card" id="evtCard"></div></div>
+
+</div>
+<script>
+'use strict';
+/* ================== DADOS ================== */
+const DAY = 30;            // segundos reais por dia de jogo
+const SAVE_KEY = 'ceo_imperio_v01';
+const VERSION = '0.1';
+
+const RAMOS = {
+  alim:{nome:'Alimentação',e:'🍔',cor:'#ff8a4c',custo:3000,aluguel:60,base:320,sm:1.0,
+    portes:['Lanchonete','Lanchonete','Restaurante','Restaurante','Rede de franquias'],
+    cargos:[{n:'Cozinheiro',e:'👨‍🍳',p:1},{n:'Atendente',e:'🧾',p:.85},{n:'Entregador',e:'🛵',p:.9},{n:'Gerente',e:'👔',p:.5}],
+    nomes:['Sabor da Vila','Lanche Esperança','Brasa & Pão','Cantinho Mineiro'],desc:'Barato de abrir, receita estável.'},
+  moda:{nome:'Moda',e:'👕',cor:'#e35d9b',custo:3500,aluguel:75,base:350,sm:1.1,
+    portes:['Brechó online','Brechó online','Marca própria','Marca própria','Grife'],
+    cargos:[{n:'Costureira',e:'🧵',p:1},{n:'Vendedor',e:'🛍️',p:.85},{n:'Estilista',e:'✏️',p:.95},{n:'Social media',e:'📱',p:.5}],
+    nomes:['Garimpo Chic','Vila Moda','Retalho Nobre','Ponto & Linha'],desc:'Equilibrado; cresce bem com marketing.'},
+  tech:{nome:'Tecnologia',e:'💻',cor:'#5aa9ff',custo:4500,aluguel:100,base:420,sm:1.3,
+    portes:['Assistência de celular','Assistência de celular','Software house','Software house','Big tech'],
+    cargos:[{n:'Técnico',e:'🔧',p:1},{n:'Programador',e:'⌨️',p:.9},{n:'Designer',e:'🎨',p:.95},{n:'Gerente de projetos',e:'📋',p:.5}],
+    nomes:['ConectaCel','Byte Esperança','NovaTech','Pixel & Chip'],desc:'Caro, salários altos, receita alta.'},
+  logi:{nome:'Logística',e:'🚚',cor:'#45d38a',custo:6000,aluguel:120,base:460,sm:1.2,
+    portes:['Motoboys','Motoboys','Transportadora','Transportadora','Rede nacional'],
+    cargos:[{n:'Motoboy',e:'🏍️',p:1},{n:'Despachante',e:'📦',p:.85},{n:'Motorista',e:'🚛',p:.95},{n:'Gerente de frota',e:'🗺️',p:.5}],
+    nomes:['Turbo Entregas','Vai Já Express','Rota Certa','Leva & Traz'],desc:'Dá +10% para Alimentação e Moda.',lockCh:4}
+};
+const RAMO_ORDER = ['alim','moda','tech','logi'];
+
+const TRAITS = {
+  comum:{n:'Comum',prod:1,sal:1,d:'Sem surpresas.',w:12},
+  esforcado:{n:'Esforçado',prod:1.2,sal:1,d:'+20% de produção.',w:18},
+  preguicoso:{n:'Preguiçoso',prod:.75,sal:.8,d:'−25% de produção, mas salário 20% menor.',w:14},
+  criativo:{n:'Criativo',prod:1,sal:1,d:'Pode gerar eventos bons (ideias, vídeo viral).',w:14},
+  ambicioso:{n:'Ambicioso',prod:1.1,sal:1,d:'+10% de produção. Pede aumento e é alvo da Vortex.',w:16},
+  leal:{n:'Leal',prod:1,sal:1,d:'Nunca aceita proposta do rival. Moral cai mais devagar.',w:14},
+  fofoqueiro:{n:'Fofoqueiro',prod:1,sal:1,d:'Produz normal, mas baixa a moral dos colegas.',w:10},
+  genio:{n:'Gênio',prod:2,sal:1.5,d:'Produção em dobro. Raro.',w:2}
+};
+
+const PERFIS = {
+  lid:{n:'Líder',d:'+15% moral da equipe',a:'lid'},
+  neg:{n:'Negociador',d:'−15% em salários',a:'neg'},
+  vis:{n:'Visionário',d:'+15% receita',a:'vis'},
+  com:{n:'Comunicador',d:'+10 reputação, marketing mais barato',a:'car'}
+};
+const ATTRS = {lid:['Liderança','Moral da equipe e retenção'],neg:['Negociação','Salários menores'],vis:['Visão','Receita e candidatos melhores'],car:['Carisma','Reputação e marketing']};
+
+const HQS = [
+  {n:'Garagem',min:0,max:2},
+  {n:'Sala comercial',min:25000,max:3},
+  {n:'Andar inteiro',min:150000,max:5},
+  {n:'Prédio',min:1e6,max:8},
+  {n:'Torre',min:2e7,max:12}
+];
+
+const LICOES = {
+  cliente:{t:'"Cliente bem atendido volta. Cliente maltratado conta pra dez."',b:'+5% de receita em todas as empresas'},
+  paga:{t:'"Paga em dia, dorme tranquilo. Funcionário que confia em você trabalha por dois."',b:'A moral da equipe cai 50% mais devagar'},
+  cesta:{t:'"Nunca ponha todos os ovos na mesma cesta. Eu pus. Deu no que deu."',b:'+5% de receita para cada ramo diferente'},
+  negocia:{t:'"Quem negocia não paga cheio. Quem não pergunta, não sabe."',b:'−5% em todos os salários'}
+};
+
+const NOMES = ['Ana','Bruno','Carla','Diego','Eduarda','Felipe','Gabriela','Henrique','Isabela','João','Karina','Lucas','Mariana','Nicolas','Patrícia','Rafael','Sabrina','Thiago','Vanessa','Wesley','Yasmin','Caio','Juliana','Márcio','Renata','Larissa','Gustavo','Camila','Anderson','Jéssica','Leandro','Bianca','Rodrigo','Tainá','Vinícius','Letícia','Matheus','Daiane','Pedro','Aline'];
+const SOBRENOMES = ['Silva','Souza','Oliveira','Santos','Lima','Pereira','Costa','Rodrigues','Almeida','Nascimento','Carvalho','Ribeiro','Gomes','Martins','Araújo','Barbosa','Rocha','Dias','Moreira','Cardoso','Teixeira','Freitas'];
+
+const SKINS = ['#f1c9a5','#d9a074','#a96f45','#6e4428'];
+const HAIRC = ['#1c1612','#5b3a22','#b07a3c','#d8d0c0'];
+const STYLES = [['short','Curto'],['long','Longo'],['slick','Penteado'],['bun','Coque'],['bald','Raspado']];
+const OUTFITS = ['#2b3a67','#7a2e3b','#2f6b55','#3b3b44'];
+
+const NPC = {
+  antonio:{n:'Seu Antônio',l:{skin:'#c98e62',hair:'#c9c4bb',style:'short',outfit:'#4f6275',acc:'mustache',bg:'#2a3550'}},
+  cida:{n:'Dona Cida',l:{skin:'#e0b08a',hair:'#7a5a48',style:'bun',outfit:'#8c4a6b',acc:'glasses',bg:'#3a2840'}},
+  beto:{n:'Beto "Turbo"',l:{skin:'#8d5a3b',hair:'#d8412f',style:'cap',outfit:'#e0a03a',bg:'#3a2a1c'}},
+  otavio:{n:'Otávio Valente',l:{skin:'#efc6a0',hair:'#262626',style:'slick',outfit:'#121218',acc:'tie',bg:'#3a1d24'}},
+  marcos:{n:'Marcos Reis',l:{skin:'#d9a074',hair:'#3a3a3a',style:'slick',outfit:'#1e3a5f',acc:'tie',bg:'#1c2c3a'}}
+};
+
+/* ================== HISTÓRIA ================== */
+const SCENES = {
+  prologo1:{title:'Prólogo · O Envelope',lines:[
+    {w:'narr',t:'Vila Esperança. Interior de São Paulo.'},
+    {w:'narr',t:'Por 30 anos, o Mercadinho Esperança abriu às seis da manhã. Fiado anotado no caderno, café passado na hora, todo mundo chamado pelo nome.'},
+    {w:'narr',t:'Até o dia em que o Grupo Vortex abriu um hipermercado do outro lado da praça.'},
+    {w:'narr',t:'Preços abaixo do custo. Propaganda em todo canto. E, seis meses depois, uma carta: a Vortex tinha comprado as dívidas do mercadinho.'},
+    {w:'narr',t:'As portas fecharam numa terça-feira chuvosa.'},
+    {w:'narr',t:'Mas todo império começa com alguém que se recusa a desistir.\n\nQuem é você?'}
+  ]},
+  prologo2:{title:'Prólogo · O Envelope',lines:[
+    {w:'antonio',t:'{n}... senta aqui um minuto.'},
+    {w:'antonio',t:'Arrumei um emprego. Vigia noturno. Na torre da Vortex, acredita?'},
+    {w:'ceo',t:'Pai, você não precisa disso. Depois de tudo que eles fizeram...'},
+    {w:'antonio',t:'Conta não espera orgulho. E eu não vim falar de mim.'},
+    {w:'antonio',t:'Toma. Cinco mil reais. Era o dinheiro da reforma do mercadinho. Agora é seu.'},
+    {w:'antonio',t:'E isso aqui também. Meu caderno. Tudo que eu aprendi em 30 anos de balcão... e todos os erros que eu cometi.'},
+    {w:'antonio',t:'Não cometa os mesmos. E não deixe ninguém te dizer que gente pequena não pode crescer.'},
+    {w:'narr',t:'Naquela noite, você limpou a garagem, colocou uma mesa velha no meio e escreveu na parede, com tinta branca: SEDE.'},
+    {w:'narr',t:'+ R$ 5.000\n+ Caderno do Seu Antônio'}
+  ]},
+  ch1:{title:'Capítulo 1 · A Garagem',lines:[
+    {w:'cida',t:'Ô de casa! Sou eu, Dona Cida. Fiz a contabilidade do seu pai por vinte anos.'},
+    {w:'cida',t:'Ele me contou do envelope. Cinco mil não é muito... mas dá pra começar, se você escolher bem.'},
+    {w:'cida',t:'Primeira coisa: escolha um ramo. Comida, moda ou tecnologia. Cada ramo pede um tipo diferente de gente pra trabalhar.'},
+    {w:'cida',t:'Toque em ABRIR EMPRESA. Eu cuido das contas, você cuida das decisões.'}
+  ]},
+  ch2:{title:'Capítulo 2 · Primeira Equipe',lines:[
+    {w:'cida',t:'{e} aberta! Gostei do nome.'},
+    {w:'narr',t:'Lição do Caderno: "Cliente bem atendido volta."\n+5% de receita'},
+    {w:'cida',t:'Agora a parte difícil: empresa sem gente é só um CNPJ.'},
+    {w:'cida',t:'Todo negócio tem dois cargos ESSENCIAIS. Sem eles, a empresa anda a 40%. Contrate os dois.'},
+    {w:'beto',t:'E aí, CEO! A rua inteira já tá sabendo da novidade!'},
+    {w:'beto',t:'Olha... tô sem serviço desde que a Vortex trocou os motoboys por aplicativo. Topo qualquer coisa. Aprendo rápido, juro!'},
+    {w:'narr',t:'Beto entrou na lista de candidatos da sua empresa. Leal, salário baixo e muita vontade.'}
+  ]},
+  ch3:{title:'Capítulo 3 · No Azul',lines:[
+    {w:'cida',t:'Equipe completa! Agora sim isso aqui parece empresa.'},
+    {w:'cida',t:'Fica de olho no fim de cada dia: é quando saem salários e aluguel. Caixa negativo por 3 dias seguidos é falência.'},
+    {w:'cida',t:'Meta: juntar R$ 12.000 em caixa. Dica de quem entende: subir o nível da empresa abre vagas e aumenta a receita.'}
+  ]},
+  ch4:{title:'Capítulo 4 · Outra Cesta',lines:[
+    {w:'narr',t:'Você abre o caderno do Seu Antônio numa página marcada com café.'},
+    {w:'antonio',t:'"Paga em dia, dorme tranquilo. Funcionário que confia em você trabalha por dois."'},
+    {w:'narr',t:'Lição do Caderno: a moral da equipe agora cai 50% mais devagar.'},
+    {w:'cida',t:'Doze mil em caixa. Seu pai levou três anos pra ver esse número.'},
+    {w:'cida',t:'Mas presta atenção: ele tinha tudo num negócio só. Quando a Vortex chegou, não tinha pra onde correr.'},
+    {w:'cida',t:'Abra uma segunda empresa. De outro ramo.'},
+    {w:'beto',t:'Chefe, chefe! Ideia: e se a gente fizesse as entregas da cidade? Eu conheço todo motoboy daqui!'},
+    {w:'narr',t:'Novo ramo desbloqueado: Logística 🚚'}
+  ]},
+  ch5:{title:'Capítulo 5 · Visita Indesejada',lines:[
+    {w:'narr',t:'Lição do Caderno: "Nunca ponha todos os ovos na mesma cesta."\n+5% de receita por ramo diferente'},
+    {w:'narr',t:'No dia seguinte, um carro preto para em frente à garagem. O motorista abre a porta.'},
+    {w:'otavio',t:'Então é aqui. A famosa garagem.'},
+    {w:'otavio',t:'Otávio Valente. Grupo Vortex. Seu pai trabalha pra mim, sabia? Bom vigia. Pontual.'},
+    {w:'otavio',t:'Duas empresas em poucos meses. Confesso que estou impressionado. Por isso vim pessoalmente.'},
+    {w:'otavio',t:'Quando você chegar a R$ 25.000 de patrimônio, eu volto com uma proposta.'},
+    {w:'otavio',t:'Seria uma pena ver tudo isso... fechar numa terça-feira chuvosa.'},
+    {w:'narr',t:'Ele sabe. Ele lembra.\n\nA partir de agora, a Vortex vai tentar roubar seus funcionários.'}
+  ]},
+  final1:{title:'Fim do Ato 1 · A Proposta',lines:[
+    {w:'narr',t:'Uma semana depois, Otávio volta. Dessa vez com um contrato.'},
+    {w:'otavio',t:'Cinquenta mil reais. Por tudo: as empresas, os funcionários, a marca. E você vira gerente regional da Vortex. Salário fixo, carro da empresa.'},
+    {w:'otavio',t:'É mais do que seu pai ganhou na vida inteira. Assina.'},
+    {w:'otavio',t:'...',choice:[{t:'Rasgar o contrato',go:'rasgar'},{t:'Assinar',go:'assinar'}]}
+  ]},
+  assinar:{title:'Final · Vendido',lines:[
+    {w:'narr',t:'Você assina. Uma semana depois, as placas das suas empresas mudam de cor: laranja e preto, as cores da Vortex.'},
+    {w:'narr',t:'Beto é demitido no primeiro corte. Dona Cida para de atender suas ligações.'},
+    {w:'narr',t:'Seu pai continua fazendo a ronda da torre. Ele nunca toca no assunto.'},
+    {w:'narr',t:'FINAL: VENDIDO\n\n...mas não precisa terminar assim.'},
+    {w:'narr',t:'Volte no tempo e escolha de novo.',go:'final1'}
+  ]},
+  rasgar:{title:'Fim do Ato 1 · A Garagem',lines:[
+    {w:'narr',t:'Você rasga o contrato ao meio. Depois ao meio de novo.'},
+    {w:'otavio',t:'Erro de principiante.'},
+    {w:'otavio',t:'Nos vemos em São Paulo. Lá, o jogo é outro.'},
+    {w:'antonio',t:'Eu vi da janela da torre, {n}. Vi o carro dele saindo daqui com a cara amarrada.'},
+    {w:'antonio',t:'Pela primeira vez em meses, eu dormi tranquilo.'},
+    {w:'narr',t:'Lição do Caderno: "Quem negocia não paga cheio."\n−5% em todos os salários'},
+    {w:'narr',t:'FIM DO ATO 1 — A GARAGEM\n\nO Ato 2, Cidade Grande, chega na próxima atualização. Suas empresas continuam rendendo: siga crescendo!'}
+  ]},
+  falencia1:{title:'Caixa no vermelho',lines:[
+    {w:'cida',t:'{n}, três dias no vermelho. Isso é falência, menino(a)... quer dizer, CEO.'},
+    {w:'cida',t:'Toma. São as minhas economias. R$ 2.000. Seu pai me ajudou quando eu precisei.'},
+    {w:'cida',t:'Mas é uma vez só, viu? Corte custos: demita quem não rende ou suba a receita antes de contratar mais.'}
+  ]},
+  falencia2:{title:'Caixa no vermelho',lines:[
+    {w:'marcos',t:'Prazer. Marcos Reis. Dizem que me chamam de Tubarão, mas é exagero.'},
+    {w:'marcos',t:'Fiquei sabendo do seu aperto. Tome R$ 3.000. Sem juros, sem papel.'},
+    {w:'marcos',t:'Um dia eu cobro um favor. Só um.'},
+    {w:'narr',t:'Marcos sorri como quem já conhecia sua família. Você guarda esse nome.'}
+  ]}
+};
+
+const CHAPTERS = [
+  null,
+  {t:'A Garagem',obj:'Abra sua primeira empresa',scene:'ch1',check:()=>S.companies.length>=1,prog:()=>S.companies.length?1:0},
+  {t:'Primeira Equipe',obj:'Contrate os dois cargos essenciais da sua primeira empresa',scene:'ch2',check:()=>S.companies[0]&&hasEss(S.companies[0]),prog:()=>{const c=S.companies[0];if(!c)return 0;return ([0,1].filter(i=>c.emps.some(e=>e.cargo===i)).length)/2}},
+  {t:'No Azul',obj:'Junte R$ 12.000 em caixa',scene:'ch3',check:()=>S.money>=12000,prog:()=>clamp(S.money/12000,0,1)},
+  {t:'Outra Cesta',obj:'Abra uma empresa de outro ramo',scene:'ch4',check:()=>ramosDistintos()>=2,prog:()=>ramosDistintos()>=2?1:0},
+  {t:'Visita Indesejada',obj:'Chegue a R$ 25.000 de patrimônio',scene:'ch5',check:()=>patrimonio()>=25000,prog:()=>clamp(patrimonio()/25000,0,1)}
+];
+
+/* ================== ESTADO ================== */
+let S = null;
+function newState(){
+  return {v:VERSION,started:false,ceo:{name:'',look:{skin:SKINS[1],hair:HAIRC[0],style:'short',outfit:OUTFITS[0]},perfil:'vis',lvl:1,xp:0,pts:0,attr:{lid:1,neg:1,vis:1,car:1}},
+    money:5000,rep:30,legado:0,day:1,dayT:0,todayRev:0,chapter:0,flags:{},licoes:[],companies:[],cands:{},buffs:[],debt:0,hq:0,earned:0,uid:1,lastSave:Date.now(),seen:{}};
+}
+
+/* ================== UTIL ================== */
+const $ = id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function pickW(ws){const t=ws.reduce((s,w)=>s+w,0);let r=Math.random()*t;for(let i=0;i<ws.length;i++){r-=ws[i];if(r<=0)return i}return ws.length-1}
+function fmt(n){const neg=n<0;n=Math.abs(n);let s;if(n>=1e9)s=(n/1e9).toFixed(2).replace('.',',')+' bi';else if(n>=1e6)s=(n/1e6).toFixed(2).replace('.',',')+' mi';else s=Math.round(n).toLocaleString('pt-BR');return (neg?'−':'')+'R$ '+s}
+function stars(n){return '★'.repeat(n)+'<span style="opacity:.25">'+'★'.repeat(5-n)+'</span>'}
+function hash(s){let h=2166136261;s=String(s);for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function txt(s){const c=S.companies[0];return s.replace(/\{n\}/g,S.ceo.name).replace(/\{e\}/g,c?c.name:'Sua empresa')}
+
+/* ================== AVATAR ================== */
+function avatar(l,cls='av'){
+  const s=l.skin,h=l.hair,o=l.outfit;let hair='';
+  switch(l.style){
+    case 'short':hair=`<path d="M30 41 Q29 18 50 18 Q71 18 70 41 Q67 28 50 27 Q33 28 30 41Z" fill="${h}"/>`;break;
+    case 'long':hair=`<path d="M29 46 Q26 17 50 17 Q74 17 71 46 L74 70 Q65 64 66 46 Q64 29 50 28 Q36 29 34 46 Q35 64 26 70Z" fill="${h}"/>`;break;
+    case 'bun':hair=`<circle cx="50" cy="15" r="8" fill="${h}"/><path d="M30 41 Q30 19 50 19 Q70 19 70 41 Q66 29 50 28 Q34 29 30 41Z" fill="${h}"/>`;break;
+    case 'cap':hair=`<path d="M29 37 Q30 16 50 16 Q70 16 71 37Z" fill="${h}"/><path d="M52 34 L82 35 Q80 40 64 39Z" fill="${h}"/><rect x="29" y="34" width="42" height="4" fill="rgba(0,0,0,.2)"/>`;break;
+    case 'slick':hair=`<path d="M30 39 Q28 17 52 17 Q72 18 70 39 Q68 26 56 25 Q44 24 38 28 Q33 31 30 39Z" fill="${h}"/>`;break;
+    default:hair='';
+  }
+  let acc='';
+  if(l.acc==='mustache')acc+=`<path d="M41 49 Q50 44 59 49 Q50 52 41 49Z" fill="${h}"/>`;
+  if(l.acc==='glasses')acc+=`<g fill="none" stroke="#1d1d22" stroke-width="1.8"><circle cx="43" cy="41" r="5"/><circle cx="57" cy="41" r="5"/><path d="M48 41 H52"/></g>`;
+  let neckAcc='';
+  if(l.acc==='tie')neckAcc=`<path d="M42 68 L50 77 L58 68Z" fill="#f2f2f2"/><path d="M50 74 L46.5 79 L50 95 L53.5 79Z" fill="#e8b54d"/>`;
+  return `<svg class="${cls}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${l.bg||'#25304b'}"/><clipPath id="c${hash(JSON.stringify(l))}"><circle cx="50" cy="50" r="50"/></clipPath><g clip-path="url(#c${hash(JSON.stringify(l))})"><path d="M14 104 Q16 70 50 67 Q84 70 86 104Z" fill="${o}"/>${neckAcc}<rect x="44" y="54" width="12" height="14" rx="3" fill="${s}"/><circle cx="31" cy="43" r="4" fill="${s}"/><circle cx="69" cy="43" r="4" fill="${s}"/><circle cx="50" cy="40" r="19" fill="${s}"/>${hair}<circle cx="43" cy="42" r="2.1" fill="#1a1a1a"/><circle cx="57" cy="42" r="2.1" fill="#1a1a1a"/><path d="M45 51 Q50 54.5 55 51" stroke="#6a3322" stroke-width="2" fill="none" stroke-linecap="round"/>${acc}</g></svg>`;
+}
+function empLook(e){const h=hash(e.id+e.name);const styles=['short','long','slick','bun','bald','short','long'];return {skin:SKINS[h%4],hair:HAIRC[(h>>3)%4],style:styles[(h>>5)%styles.length],outfit:['#2b3a67','#7a2e3b','#2f6b55','#5b4a7a','#6b5a2b','#2b5f6b'][(h>>8)%6],acc:((h>>11)%7===0)?'glasses':'',bg:'#222c45'}}
+
+/* ================== ECONOMIA ================== */
+function hasEss(c){return c.emps.some(e=>e.cargo===0)&&c.emps.some(e=>e.cargo===1)}
+function slots(c,i){if(i<2)return Math.min(c.lvl,3);if(i===2)return c.lvl>=2?Math.min(c.lvl-1,2):0;return c.lvl>=3?1:0}
+function ramosDistintos(){return new Set(S.companies.map(c=>c.ramo)).size}
+function globalMult(){let m=1;if(S.ceo.perfil==='vis')m*=1.15;m*=1+.02*(S.ceo.attr.vis-1);if(S.licoes.includes('cliente'))m*=1.05;if(S.licoes.includes('cesta'))m*=1+.05*Math.max(0,ramosDistintos()-1);return m}
+function compMult(c){let m=1+.25*(c.lvl-1);if(!hasEss(c))m*=.4;if(c.emps.some(e=>e.cargo===3))m*=1.2;if(c.mkt>0)m*=1.3;m*=.8+S.rep/250;m*=globalMult();
+  if((c.ramo==='alim'||c.ramo==='moda')&&S.companies.some(x=>x.ramo==='logi'))m*=1.1;
+  for(const b of S.buffs)if(!b.cid||b.cid===c.id)m*=b.m;return m}
+function empProd(c,e){const R=RAMOS[c.ramo];return R.base*R.cargos[e.cargo].p*(.6+.4*e.stars)*TRAITS[e.trait].prod*(.5+e.moral/200)}
+function compRev(c){return c.emps.reduce((s,e)=>s+empProd(c,e),0)*compMult(c)}
+function salMult(){let m=1;if(S.ceo.perfil==='neg')m*=.85;m*=1-.02*(S.ceo.attr.neg-1);if(S.licoes.includes('negocia'))m*=.95;return m}
+function empSal(e){return e.sal*salMult()}
+function rent(c){return RAMOS[c.ramo].aluguel*(1+.5*(c.lvl-1))}
+function compCost(c){return c.emps.reduce((s,e)=>s+empSal(e),0)+rent(c)}
+function totRev(){return S.companies.reduce((s,c)=>s+compRev(c),0)}
+function totCost(){return S.companies.reduce((s,c)=>s+compCost(c),0)}
+function compValue(c){let v=RAMOS[c.ramo].custo*.5;for(let l=1;l<c.lvl;l++)v+=lvlCost(c,l)*.5;return v}
+function patrimonio(){return S.money+S.companies.reduce((s,c)=>s+compValue(c),0)}
+function lvlCost(c,l=c.lvl){return Math.round(RAMOS[c.ramo].custo*1.2*Math.pow(l,1.5)/50)*50}
+function mktCost(c){let k=Math.round(RAMOS[c.ramo].custo*.15*(1+.3*(c.lvl-1)));if(S.ceo.perfil==='com')k*=.75;k*=1-.03*(S.ceo.attr.car-1);return Math.round(k/10)*10}
+function porte(c){return RAMOS[c.ramo].portes[c.lvl-1]}
+function scaleK(){return Math.max(1,totRev()/900)}
+
+/* ================== CANDIDATOS ================== */
+function genCand(ramo,cargo){
+  const b=S.hq*4+(S.ceo.attr.vis-1)*2;
+  const w=[Math.max(5,35-b),35,20+b*.5,8+b*.35,2+b*.15];
+  const st=pickW(w)+1;
+  const tk=Object.keys(TRAITS);const tr=tk[pickW(tk.map(k=>TRAITS[k].w))];
+  let sal=(30+25*st)*RAMOS[ramo].sm*TRAITS[tr].sal*rnd(.9,1.1);
+  return {id:'e'+(S.uid++),name:pick(NOMES)+' '+pick(SOBRENOMES),cargo,stars:st,trait:tr,sal:Math.round(sal),moral:ri(62,85),low:0};
+}
+function getCands(c,cargo){
+  const k=c.id+'_'+cargo;
+  if(!S.cands[k]||!S.cands[k].length)S.cands[k]=[0,1,2].map(()=>genCand(c.ramo,cargo));
+  let list=S.cands[k];
+  if(S.flags.beto&&!S.flags.betoHired&&c===S.companies[0]&&cargo===1&&!list.some(x=>x.special)){
+    list.unshift({id:'beto',name:'Beto "Turbo"',cargo:1,stars:2,trait:'leal',sal:Math.round(35*RAMOS[c.ramo].sm),moral:95,low:0,special:true});
+  }
+  return list;
+}
+
+/* ================== SALVAR ================== */
+function save(){if(!S||!S.started)return;S.lastSave=Date.now();try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const s=localStorage.getItem(SAVE_KEY);if(s)return JSON.parse(s)}catch(e){}return null}
+setInterval(()=>{if(!document.hidden)save()},5000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)save();else if(S&&S.started)offline()});
+
+function offline(){
+  const secs=Math.min(4*3600,(Date.now()-S.lastSave)/1000);
+  if(secs<60||!S.companies.length){S.lastSave=Date.now();return}
+  const g=totRev()/DAY*secs*.5;S.money+=g;S.earned+=g;S.lastSave=Date.now();
+  const mins=Math.round(secs/60);
+  showInfo('🌙','Enquanto você estava fora...',`Você ficou ${mins>=60?Math.floor(mins/60)+'h '+(mins%60)+'min':mins+' min'} longe. Suas empresas renderam <b class="gold">${fmt(g)}</b> (50% do normal, sem custos).`);
+}
+
+/* ================== TELAS ================== */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id))}
+
+function skyline(){
+  let g='';const cols=['#141c33','#18213b','#111829'];let x=0;let i=0;
+  while(x<480){const w=ri(34,70),h=ri(70,220);const c=cols[i%3];g+=`<rect x="${x}" y="${240-h}" width="${w}" height="${h}" fill="${c}"/>`;
+    for(let yy=240-h+10;yy<232;yy+=14)for(let xx=x+6;xx<x+w-6;xx+=10)if(Math.random()<.22)g+=`<rect x="${xx}" y="${yy}" width="4" height="6" fill="#e8b54d" opacity="${rnd(.3,.9).toFixed(2)}"/>`;
+    x+=w+ri(0,6);i++}
+  $('skyline').innerHTML=g;
+}
+
+function initHome(){
+  skyline();
+  const has=!!load();
+  $('bContinue').style.display=has?'block':'none';
+  let confirmNew=false;
+  $('bNew').textContent='Novo jogo';
+  $('bNew').onclick=()=>{
+    if(has&&!confirmNew){confirmNew=true;$('bNew').textContent='Toque de novo: o save atual será apagado';return}
+    localStorage.removeItem(SAVE_KEY);S=newState();
+    playScene('prologo1',()=>{show('create');renderCreate()});
+  };
+  $('bContinue').onclick=()=>{S=Object.assign(newState(),load());show('game');setTab('hq');offline();resumeChecks()};
+}
+
+/* ---------- Criação ---------- */
+function renderCreate(){
+  const c=S.ceo,l=c.look;
+  const sw=(arr,key)=>arr.map(v=>`<button style="background:${v}" class="${l[key]===v?'on':''}" data-k="${key}" data-v="${v}"></button>`).join('');
+  $('crBody').innerHTML=`<h2>Quem é você?</h2><p class="mu">Crie o CEO que vai construir o império.</p>
+  <div class="cr-prev">${avatar(Object.assign({bg:'#25304b'},l),'av" style="width:130px;height:130px')}</div>
+  <div class="field"><label>Nome</label><input class="inp" id="crName" maxlength="16" placeholder="Seu nome" value="${esc(c.name)}"></div>
+  <div class="field"><label>Pele</label><div class="sw">${sw(SKINS,'skin')}</div></div>
+  <div class="field"><label>Cabelo</label><div class="sw">${sw(HAIRC,'hair')}</div><div class="sw txt" style="margin-top:10px">${STYLES.map(([k,n])=>`<button class="${l.style===k?'on':''}" data-k="style" data-v="${k}">${n}</button>`).join('')}</div></div>
+  <div class="field"><label>Roupa</label><div class="sw">${sw(OUTFITS,'outfit')}</div></div>
+  <div class="field"><label>Perfil de CEO</label><div class="perfis">${Object.entries(PERFIS).map(([k,p])=>`<button class="perfil ${c.perfil===k?'on':''}" data-p="${k}"><b>${p.n}</b><span>${p.d}</span></button>`).join('')}</div></div>`;
+  $('crBody').querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{c.name=$('crName').value;l[b.dataset.k]=b.dataset.v;renderCreate()});
+  $('crBody').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{c.name=$('crName').value;c.perfil=b.dataset.p;renderCreate()});
+  $('bStart').onclick=()=>{
+    const n=$('crName').value.trim();if(!n){$('crName').focus();$('crName').style.borderColor='var(--red)';return}
+    c.name=n;c.attr[PERFIS[c.perfil].a]=3;if(c.perfil==='com')S.rep=40;
+    S.started=true;S.chapter=1;show('game');setTab('hq');save();
+    playScene('prologo2',()=>playScene('ch1'));
+  };
+}
+
+/* ---------- Abas ---------- */
+let tab='hq';
+$('tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+function setTab(t){tab=t;$('tabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));renderView();$('view').scrollTop=0}
+function renderView(){
+  renderTop();
+  const v=$('view');
+  if(tab==='hq')v.innerHTML=viewHQ();
+  else if(tab==='cos')v.innerHTML=viewCos();
+  else if(tab==='story')v.innerHTML=viewStory();
+  else v.innerHTML=viewCEO();
+  bindView();updateLive();
+}
+function renderTop(){
+  $('tMe').innerHTML=avatar(Object.assign({bg:'#25304b'},S.ceo.look))+`<div><b>${esc(S.ceo.name)}</b><small>CEO · Nível ${S.ceo.lvl}</small></div>`;
+}
+
+function hqArt(lv){
+  let g=`<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2848"/><stop offset="1" stop-color="#2d2a3d"/></linearGradient></defs><rect width="360" height="160" fill="url(#sky)"/>`;
+  g+=`<circle cx="310" cy="34" r="12" fill="#f3e3b5" opacity=".85"/>`;
+  for(let i=0;i<9;i++){const h=20+((i*37)%50);g+=`<rect x="${i*42}" y="${130-h}" width="34" height="${h}" fill="#151d33"/>`}
+  g+=`<rect y="130" width="360" height="30" fill="#141a2a"/><rect y="130" width="360" height="2" fill="#2e3854"/>`;
+  const win=(x,y,w,h,cols,rows,seed)=>{let s='';for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const on=hash(seed+'-'+r+'-'+c)%3!==0;s+=`<rect x="${x+c*(w/cols)+3}" y="${y+r*(h/rows)+3}" width="${w/cols-6}" height="${h/rows-6}" rx="1" fill="${on?'#e8b54d':'#26314d'}" opacity="${on?.85:1}"/>`}return s};
+  if(lv===0){
+    g+=`<path d="M120 130 V82 L180 52 L240 82 V130Z" fill="#3a3348"/><path d="M112 84 L180 46 L248 84" stroke="#5a4e6a" stroke-width="8" fill="none" stroke-linejoin="round"/>`;
+    g+=`<rect x="140" y="88" width="80" height="42" fill="#7b7f8c"/>`;for(let y=92;y<130;y+=7)g+=`<rect x="140" y="${y}" width="80" height="2" fill="#5f6370"/>`;
+    g+=`<rect x="150" y="70" width="60" height="14" rx="3" fill="#e8b54d"/><text x="180" y="81" text-anchor="middle" font-size="10" font-weight="900" fill="#1d1406" font-family="system-ui">SEDE</text>`;
+    g+=`<rect x="243" y="104" width="22" height="26" fill="#2a2f3e"/><circle cx="250" cy="96" r="4" fill="#ffd27a"/>`;
+  }else{
+    const H=[0,60,82,104,124][lv],W=[0,110,120,90,64][lv],x=180-W/2;
+    g+=`<rect x="${x}" y="${130-H}" width="${W}" height="${H}" fill="#2a3452"/><rect x="${x}" y="${130-H}" width="${W}" height="4" fill="#e8b54d"/>`;
+    g+=win(x+6,130-H+8,W-12,H-16,lv>=3?4:5,Math.round(H/14),'hq'+lv);
+    if(lv>=3)g+=`<rect x="${x+W/2-14}" y="${130-H-14}" width="28" height="14" fill="#2a3452"/><circle cx="${x+W/2}" cy="${130-H-20}" r="3" fill="#ff6b6b"/>`;
+    if(lv===4)g+=`<path d="M${x+W/2} ${130-H-40} V${130-H-14}" stroke="#8d97ad" stroke-width="2"/>`;
+  }
+  return `<svg viewBox="0 0 360 160">${g}</svg>`;
+}
+
+function objCard(){
+  if(S.chapter>=1&&S.chapter<=5){const C=CHAPTERS[S.chapter];
+    return `<div class="card obj"><div class="cap">Ato 1 · Capítulo ${S.chapter}</div><div class="tt">${C.t}</div><div>${C.obj}</div><div class="prog"><i data-live="objp" style="width:${C.prog()*100}%"></i></div></div>`}
+  if(S.chapter>=6)return `<div class="card obj"><div class="cap">Ato 1 concluído</div><div class="tt">Rumo à Cidade Grande</div><div class="mu">O Ato 2 chega na próxima atualização. Continue crescendo: patrimônio, nível das empresas e a sede.</div></div>`;
+  return '';
+}
+function viewHQ(){
+  const H=HQS[S.hq],nx=HQS[S.hq+1];
+  let h=`<div class="card hq">${hqArt(S.hq)}<div class="hq-info"><div><b>${H.n}</b><br><small class="mu">${S.companies.length}/${H.max} empresas</small></div><div style="text-align:right"><small class="mu">Patrimônio</small><br><b class="gold" data-live="patr"></b></div></div></div>`;
+  h+=objCard();
+  h+=`<div class="card"><h3>Finanças por dia</h3><div class="fin"><div><small>Receita</small><b class="green" data-live="rev"></b></div><div><small>Custos</small><b class="red" data-live="cost"></b></div><div><small>Lucro</small><b data-live="prof"></b></div></div>${nx?`<div class="prog" style="background:#26304a"><i data-live="hqp" style="background:var(--blue)"></i></div><small class="mu" style="display:block;margin-top:6px">Próxima sede: ${nx.n} com patrimônio de ${fmt(nx.min)}</small>`:''}</div>`;
+  if(S.companies.length){h+=`<div class="card"><h3>Suas empresas</h3>${S.companies.map(coRow).join('<div style="height:10px"></div>')}</div>`}
+  if(S.chapter>=1)h+=`<button class="btn" data-a="newco" ${S.companies.length>=H.max?'disabled':''}>${S.companies.length>=H.max?'Sede cheia: cresça o patrimônio':'+ Abrir empresa'}</button>`;
+  return h;
+}
+function coRow(c){const R=RAMOS[c.ramo];const vag=[0,1,2,3].reduce((s,i)=>s+Math.max(0,slots(c,i)-c.emps.filter(e=>e.cargo===i).length),0);
+  const miss=[0,1].filter(i=>!c.emps.some(e=>e.cargo===i)).map(i=>R.cargos[i].n);
+  return `<button class="co" data-co="${c.id}"><div class="co-ic" style="background:${R.cor}22">${R.e}</div><div class="co-m"><b>${esc(c.name)}</b><small>${porte(c)} · Nível ${c.lvl}${c.mkt>0?' · 📣':''}</small>${miss.length?`<div class="warn">⚠ Falta: ${miss.join(', ')}</div>`:vag?`<div class="warn" style="color:var(--mu)">${vag} vaga${vag>1?'s':''} aberta${vag>1?'s':''}</div>`:''}</div><div class="co-r"><b data-live="cprof:${c.id}"></b><small>lucro/dia</small></div></button>`}
+function viewCos(){
+  if(!S.companies.length)return `<div class="empty">Você ainda não tem empresas.<br>Abra a primeira e comece o império.</div><button class="btn" data-a="newco">+ Abrir empresa</button>`;
+  return S.companies.map(c=>`<div class="card">${coRow(c)}</div>`).join('')+`<button class="btn" data-a="newco" ${S.companies.length>=HQS[S.hq].max?'disabled':''}>${S.companies.length>=HQS[S.hq].max?`Limite da sede (${HQS[S.hq].max})`:'+ Abrir empresa'}</button>`;
+}
+function viewStory(){
+  let h=`<div class="card"><h3>Ato 1 · A Garagem</h3>`;
+  const rows=[['Prólogo','O Envelope','prologo2',S.chapter>=1]];
+  for(let i=1;i<=5;i++)rows.push(['Capítulo '+i,CHAPTERS[i].t,CHAPTERS[i].scene,S.chapter>i,S.chapter===i]);
+  rows.push(['Final do ato','A Proposta','rasgar',S.chapter>=6]);
+  h+=rows.map(([a,b,sc,done,cur])=>`<div class="chap"><div class="s ${done?'ok':cur?'cur':''}">${done?'✓':cur?'▶':'🔒'}</div><div class="m"><b>${b}</b><small>${a}</small></div>${done||cur?`<button class="btn sec sm" style="width:auto" data-replay="${sc}">Rever</button>`:''}</div>`).join('');
+  h+=`</div><div class="card"><h3>Caderno do Seu Antônio</h3>${S.licoes.length?S.licoes.map(k=>`<div class="licao"><i>${LICOES[k].t}</i><small>${LICOES[k].b}</small></div>`).join(''):'<div class="mu" style="font-size:14px">As lições aparecem conforme a história avança.</div>'}</div>`;
+  h+=`<div class="card"><h3>Em breve</h3><div class="chap"><div class="s">🔒</div><div class="m"><b>Ato 2 · Cidade Grande</b><small>São Paulo, Marcos Reis, novos ramos</small></div></div></div>`;
+  return h;
+}
+function viewCEO(){
+  const c=S.ceo,need=c.lvl*120;
+  const legT=S.legado>=40?'Íntegro':S.legado>=10?'Correto':S.legado>-10?'Neutro':S.legado>-40?'Pragmático':'Implacável';
+  let h=`<div class="card"><div class="ceo-h">${avatar(Object.assign({bg:'#25304b'},c.look))}<div><b style="font-size:20px">${esc(c.name)}</b><br><small class="mu">${PERFIS[c.perfil].n} · ${PERFIS[c.perfil].d}</small><br><small class="gold">Nível ${c.lvl} · ${Math.floor(c.xp)}/${need} XP</small></div></div><div class="prog" style="background:#26304a"><i style="width:${c.xp/need*100}%"></i></div></div>`;
+  h+=`<div class="card"><h3>Atributos ${c.pts?`<span class="gold">· ${c.pts} ponto${c.pts>1?'s':''} para usar</span>`:''}</h3>${Object.entries(ATTRS).map(([k,[n,d]])=>`<div class="attr"><div class="n"><b>${n}</b><small>${d}</small></div><div class="pips">${Array.from({length:10},(_,i)=>`<i class="${i<c.attr[k]?'f':''}"></i>`).join('')}</div>${c.pts&&c.attr[k]<10?`<button class="plus" data-at="${k}">+</button>`:''}</div>`).join('')}</div>`;
+  h+=`<div class="card"><h3>Legado · ${legT}</h3><div class="leg"><i style="left:${(S.legado+100)/2}%"></i></div><small class="mu">Suas escolhas éticas. Vai pesar no final da história.</small></div>`;
+  h+=`<div class="card"><h3>Números</h3><div class="kv"><span>Reputação</span><b>⭐ ${Math.round(S.rep)}/100</b></div><div class="kv"><span>Patrimônio</span><b data-live="patr"></b></div><div class="kv"><span>Total faturado</span><b>${fmt(S.earned)}</b></div><div class="kv"><span>Dias de empresa</span><b>${S.day}</b></div><div class="kv"><span>Funcionários</span><b>${S.companies.reduce((s,x)=>s+x.emps.length,0)}</b></div></div>`;
+  h+=`<button class="btn red" data-a="reset">Apagar save e recomeçar</button>`;
+  return h;
+}
+function bindView(){
+  const v=$('view');
+  v.querySelectorAll('[data-a="newco"]').forEach(b=>b.onclick=()=>openSheet(sheetNewCo,{}));
+  v.querySelectorAll('[data-co]').forEach(b=>b.onclick=()=>openSheet(sheetCo,{id:+b.dataset.co}));
+  v.querySelectorAll('[data-replay]').forEach(b=>b.onclick=()=>playScene(b.dataset.replay,null,true));
+  v.querySelectorAll('[data-at]').forEach(b=>b.onclick=()=>{S.ceo.attr[b.dataset.at]++;S.ceo.pts--;renderView();save()});
+  const r=v.querySelector('[data-a="reset"]');if(r){let k=0;r.onclick=()=>{if(!k){k=1;r.textContent='Toque de novo para confirmar';return}localStorage.removeItem(SAVE_KEY);location.reload()}}
+}
+
+/* ---------- Sheets ---------- */
+let sheetStack=[];
+function openSheet(fn,arg){sheetStack.push([fn,arg]);renderSheet()}
+function backSheet(){sheetStack.pop();if(sheetStack.length)renderSheet();else closeSheet()}
+function closeSheet(){sheetStack=[];$('sheet').classList.remove('on');renderView()}
+function renderSheet(){if(!sheetStack.length)return;const [fn,arg]=sheetStack[sheetStack.length-1];$('sheet').classList.add('on');const p=$('sheetP');const sc=p.querySelector('.sh-body');const keep=sc&&p.dataset.k===fn.name+JSON.stringify(arg)?sc.scrollTop:0;p.dataset.k=fn.name+JSON.stringify(arg);p.innerHTML=fn(arg);const nb=p.querySelector('.sh-body');if(nb)nb.scrollTop=keep;p.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>b.dataset.x==='back'?backSheet():closeSheet());if(fn.bind2)fn.bind2(arg,p);updateLive()}
+$('sheetBg').onclick=closeSheet;
+function head(title,back){return `<div class="sh-head">${back?'<button class="sh-x" data-x="back">‹</button>':''}<h2>${title}</h2><button class="sh-x" data-x="close">✕</button></div>`}
+
+function sheetNewCo(a){
+  const sel=a.sel;let h=head('Abrir empresa')+`<div class="sh-body"><p class="mu" style="margin-bottom:12px">Escolha o ramo. Cada ramo pede cargos diferentes.</p><div class="ramos">`;
+  for(const k of RAMO_ORDER){const R=RAMOS[k];const lock=R.lockCh&&S.chapter<R.lockCh;
+    h+=`<button class="ramo ${sel===k?'on':''} ${lock?'lock':''}" data-r="${k}" ${lock?'disabled':''}>${lock?'<span class="lk">🔒</span>':''}<div class="e">${R.e}</div><b>${R.nome}</b><small>${lock?'Libera no capítulo '+R.lockCh:fmt(R.custo)}</small></button>`}
+  h+='</div>';
+  if(sel){const R=RAMOS[sel];if(!a.name)a.name=pick(R.nomes.filter(n=>!S.companies.some(c=>c.name===n)))||R.nomes[0];
+    const full=S.companies.length>=HQS[S.hq].max;
+    h+=`<div class="card"><div class="mu" style="margin-bottom:8px">${R.desc}</div><div class="kv"><span>Abertura</span><b>${fmt(R.custo)}</b></div><div class="kv"><span>Aluguel por dia</span><b>${fmt(R.aluguel)}</b></div><div class="kv"><span>Porte inicial</span><b>${R.portes[0]}</b></div><div style="margin-top:10px;font-size:14px">${R.cargos.map((c,i)=>`<div style="padding:4px 0">${c.e} ${c.n} ${i<2?'<span class="ess">essencial</span>':i===2?'<small class="mu">· nível 2</small>':'<small class="mu">· nível 3, +20% na empresa</small>'}</div>`).join('')}</div></div>
+    <div class="field"><label>Nome da empresa</label><input class="inp" id="coName" maxlength="22" value="${esc(a.name)}"></div>
+    <button class="btn" id="bOpen" ${S.money<R.custo||full?'disabled':''}>${full?'Sede cheia':S.money<R.custo?`Faltam ${fmt(R.custo-S.money)}`:`Abrir por ${fmt(R.custo)}`}</button>`}
+  return h+'</div>';
+}
+sheetNewCo.bind2=(a,p)=>{
+  p.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{if(a.sel!==b.dataset.r){a.sel=b.dataset.r;a.name=''}renderSheet()});
+  const inp=p.querySelector('#coName');if(inp)inp.oninput=()=>a.name=inp.value;
+  const bo=p.querySelector('#bOpen');if(bo)bo.onclick=()=>{
+    const R=RAMOS[a.sel];if(S.money<R.custo)return;const name=(a.name||'').trim()||R.nomes[0];
+    S.money-=R.custo;const c={id:S.uid++,ramo:a.sel,name,lvl:1,emps:[],mkt:0};S.companies.push(c);
+    toast(`🎉 ${esc(name)} abriu as portas!`,'good');save();
+    sheetStack=[];openSheet(sheetCo,{id:c.id});
+  };
+};
+
+function findCo(id){return S.companies.find(c=>c.id===id)}
+function sheetCo(a){
+  const c=findCo(a.id);if(!c)return head('Empresa');const R=RAMOS[c.ramo];
+  let h=head(`${R.e} ${esc(c.name)}`,sheetStack.length>1)+`<div class="sh-body"><div class="mu" style="margin:-4px 0 12px">${porte(c)} · Nível ${c.lvl} de 5 · ${R.nome}</div>`;
+  h+=`<div class="fin" style="margin-bottom:12px"><div><small>Receita/dia</small><b class="green" data-live="crev:${c.id}"></b></div><div><small>Custos/dia</small><b class="red" data-live="ccost:${c.id}"></b></div><div><small>Lucro/dia</small><b data-live="cprof:${c.id}"></b></div></div>`;
+  const miss=[0,1].filter(i=>!c.emps.some(e=>e.cargo===i));
+  if(miss.length)h+=`<div class="card" style="border-color:#6b4a1c;background:#241b10;font-size:14px">⚠ Sem ${miss.map(i=>R.cargos[i].n).join(' e ')}, a empresa roda a 40%.</div>`;
+  R.cargos.forEach((cg,i)=>{const n=slots(c,i);const es=c.emps.filter(e=>e.cargo===i);
+    h+=`<div class="cg"><div class="cg-h">${cg.e} ${cg.n} ${i<2?'<span class="ess">essencial</span>':''}<small class="mu" style="margin-left:auto;font-weight:400">${es.length}/${n}</small></div>`;
+    if(!n){h+=`<div class="lockc">🔒 Libera no nível ${i===2?2:3}${i===3?' · gestor dá +20% à empresa':''}</div>`}
+    es.forEach(e=>{h+=empSlot(c,e)});
+    for(let k=es.length;k<n;k++)h+=`<button class="slot free" data-hire="${i}">+ Contratar ${cg.n}</button>`;
+    h+='</div>'});
+  const lc=lvlCost(c);
+  h+=`<div class="acts">${c.lvl<5?`<button class="btn" data-a="lvl" ${S.money<lc?'disabled':''}>⬆ Subir para nível ${c.lvl+1} · ${fmt(lc)}<br><small style="font-weight:600">${R.portes[c.lvl]!==porte(c)?'Vira '+R.portes[c.lvl]+' · ':''}+25% receita, mais vagas</small></button>`:'<div class="lockc">Nível máximo</div>'}
+  ${c.mkt>0?`<div class="lockc">📣 Campanha de marketing ativa: ${c.mkt} dia${c.mkt>1?'s':''}</div>`:`<button class="btn sec" data-a="mkt" ${S.money<mktCost(c)?'disabled':''}>📣 Marketing por 3 dias · ${fmt(mktCost(c))}<br><small class="mu" style="font-weight:500">+30% receita e reputação</small></button>`}</div>`;
+  return h+'</div>';
+}
+function empSlot(c,e){const cg=RAMOS[c.ramo].cargos[e.cargo];const mc=e.moral>60?'var(--green)':e.moral>30?'#ffb35c':'var(--red)';
+  return `<button class="slot" data-emp="${e.id}">${e.special?avatar(NPC.beto.l):avatar(empLook(e))}<div class="m"><b>${esc(e.name)}</b><span class="st">${stars(e.stars)}</span><span class="tr">${TRAITS[e.trait].n}</span><div class="mbar"><i style="width:${e.moral}%;background:${mc}"></i></div></div><div class="co-r"><b>${fmt(empSal(e))}</b><small>salário/dia</small></div></button>`}
+sheetCo.bind2=(a,p)=>{
+  const c=findCo(a.id);if(!c)return;
+  p.querySelectorAll('[data-hire]').forEach(b=>b.onclick=()=>openSheet(sheetHire,{id:c.id,cargo:+b.dataset.hire}));
+  p.querySelectorAll('[data-emp]').forEach(b=>b.onclick=()=>openSheet(sheetEmp,{id:c.id,e:b.dataset.emp}));
+  const l=p.querySelector('[data-a="lvl"]');if(l)l.onclick=()=>{const k=lvlCost(c);if(S.money<k)return;const old=porte(c);S.money-=k;c.lvl++;gainXP(30);toast(porte(c)!==old?`🏗️ ${esc(c.name)} agora é ${porte(c)}!`:`⬆ ${esc(c.name)} subiu para o nível ${c.lvl}`,'good');save();renderSheet()};
+  const m=p.querySelector('[data-a="mkt"]');if(m)m.onclick=()=>{const k=mktCost(c);if(S.money<k)return;S.money-=k;c.mkt=3;S.rep=clamp(S.rep+2,0,100);toast('📣 Campanha no ar!','good');save();renderSheet()};
+};
+
+function sheetHire(a){
+  const c=findCo(a.id);const R=RAMOS[c.ramo];const cg=R.cargos[a.cargo];const list=getCands(c,a.cargo);
+  let h=head(`Contratar · ${cg.n}`,true)+`<div class="sh-body"><p class="mu" style="margin-bottom:12px">Toque num candidato para ver a ficha. Luvas: 1 dia de salário adiantado.</p>`;
+  list.forEach(e=>{const on=a.sel===e.id;const prod=empProd(c,e)*compMult(c);
+    h+=`<button class="cand ${on?'on':''}" data-c="${e.id}"><div class="top2">${e.special?avatar(NPC.beto.l):avatar(empLook(e))}<div style="flex:1"><b style="font-size:16px">${esc(e.name)}</b><br><span class="st">${stars(e.stars)}</span><span class="tr">${TRAITS[e.trait].n}</span></div><div class="co-r"><b>${fmt(empSal(e))}</b><small>por dia</small></div></div>
+    <div class="det">${e.special?'<div style="margin-bottom:6px">"Aprendo rápido, chefe. E não largo você por nada."</div>':''}<div class="kv"><span>Traço</span><span>${TRAITS[e.trait].d}</span></div><div class="kv"><span>Produção estimada</span><b class="green">+${fmt(prod)}/dia</b></div><div class="kv"><span>Moral inicial</span><b>${e.moral}</b></div></div></button>`});
+  const s=list.find(e=>e.id===a.sel);
+  h+=s?`<button class="btn" id="bHire" ${S.money<empSal(s)?'disabled':''}>Contratar ${esc(s.name.split(' ')[0])} · luvas ${fmt(empSal(s))}</button>`:`<button class="btn" disabled>Escolha um candidato</button>`;
+  h+=`<div style="height:8px"></div><button class="btn sec" id="bRef" ${S.money<50?'disabled':''}>🔄 Novos candidatos · R$ 50</button>`;
+  return h+'</div>';
+}
+sheetHire.bind2=(a,p)=>{
+  const c=findCo(a.id);
+  p.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{a.sel=a.sel===b.dataset.c?null:b.dataset.c;renderSheet()});
+  const bh=p.querySelector('#bHire');if(bh)bh.onclick=()=>{
+    const k=c.id+'_'+a.cargo;const list=S.cands[k];const i=list.findIndex(e=>e.id===a.sel);if(i<0)return;const e=list[i];
+    if(S.money<empSal(e))return;
+    S.money-=empSal(e);list.splice(i,1);c.emps.push(e);if(e.special)S.flags.betoHired=true;
+    toast(`🤝 ${esc(e.name)} contratado(a)!`,'good');save();backSheet();
+  };
+  p.querySelector('#bRef').onclick=()=>{if(S.money<50)return;S.money-=50;const k=c.id+'_'+a.cargo;S.cands[k]=(S.cands[k]||[]).filter(x=>x.special);S.cands[k].push(...[0,1,2].map(()=>genCand(c.ramo,a.cargo)));a.sel=null;renderSheet()};
+};
+
+function sheetEmp(a){
+  const c=findCo(a.id);const e=c&&c.emps.find(x=>x.id===a.e);if(!e)return head('Funcionário',true);
+  const cg=RAMOS[c.ramo].cargos[e.cargo];const mc=e.moral>60?'var(--green)':e.moral>30?'#ffb35c':'var(--red)';
+  return head(esc(e.name),true)+`<div class="sh-body"><div class="ceo-h" style="margin-bottom:14px">${e.special?avatar(NPC.beto.l):avatar(empLook(e))}<div><b style="font-size:17px">${cg.e} ${cg.n}</b><br><span class="st">${stars(e.stars)}</span><span class="tr">${TRAITS[e.trait].n}</span></div></div>
+  <div class="card"><div class="kv"><span>Traço</span><span style="text-align:right;max-width:60%">${TRAITS[e.trait].d}</span></div><div class="kv"><span>Salário</span><b>${fmt(empSal(e))}/dia</b></div><div class="kv"><span>Produção</span><b class="green">${fmt(empProd(c,e)*compMult(c))}/dia</b></div><div class="kv"><span>Moral</span><b>${Math.round(e.moral)}/100</b></div><div class="mbar" style="height:8px"><i style="width:${e.moral}%;background:${mc}"></i></div></div>
+  <div class="acts"><button class="btn" data-a="bonus" ${S.money<empSal(e)*2?'disabled':''}>🎁 Dar bônus · ${fmt(empSal(e)*2)} · +15 moral</button><button class="btn red" data-a="fire">Demitir · rescisão ${fmt(empSal(e)*2)}</button></div></div>`;
+}
+sheetEmp.bind2=(a,p)=>{
+  const c=findCo(a.id);const e=c&&c.emps.find(x=>x.id===a.e);if(!e)return;
+  const b=p.querySelector('[data-a="bonus"]');b.onclick=()=>{const k=empSal(e)*2;if(S.money<k)return;S.money-=k;e.moral=clamp(e.moral+15,0,100);toast(`🎁 ${esc(e.name.split(' ')[0])} adorou o bônus`,'good');renderSheet()};
+  const f=p.querySelector('[data-a="fire"]');if(a.cf)f.textContent='Toque de novo para demitir';f.onclick=()=>{if(!a.cf){a.cf=1;f.textContent='Toque de novo para demitir';return}
+    S.money-=empSal(e)*2;c.emps=c.emps.filter(x=>x!==e);c.emps.forEach(x=>x.moral=clamp(x.moral-5,0,100));if(e.special){S.legado-=5;toast('Beto foi embora sem dizer nada.','bad')}else toast(`${esc(e.name)} foi demitido(a)`,'bad');save();backSheet()};
+};
+
+/* ---------- Live ---------- */
+function updateLive(){
+  if(!S||!S.started)return;
+  $('tMoney').textContent=fmt(S.money);$('tMoney').classList.toggle('neg',S.money<0);
+  $('tDay').textContent='Dia '+S.day;$('tDayBar').style.width=(S.dayT*100)+'%';$('tRep').textContent='⭐ '+Math.round(S.rep);
+  const r=totRev(),k=totCost();
+  document.querySelectorAll('[data-live]').forEach(el=>{
+    const [key,id]=el.dataset.live.split(':');let v;
+    if(key==='rev')v=fmt(r);else if(key==='cost')v=fmt(k);
+    else if(key==='prof'){v=fmt(r-k);el.className=r-k>=0?'green':'red'}
+    else if(key==='patr')v=fmt(patrimonio());
+    else if(key==='objp'){const C=CHAPTERS[S.chapter];if(C)el.style.width=C.prog()*100+'%';return}
+    else if(key==='hqp'){const nx=HQS[S.hq+1];if(nx)el.style.width=clamp(patrimonio()/nx.min,0,1)*100+'%';return}
+    else{const c=findCo(+id);if(!c)return;const cr=compRev(c),cc=compCost(c);
+      if(key==='crev')v=fmt(cr);else if(key==='ccost')v=fmt(cc);else if(key==='cprof'){v=fmt(cr-cc);el.className=cr-cc>=0?'green':'red'}}
+    el.textContent=v});
+  $('dotCeo').style.display=S.ceo.pts>0?'block':'none';
+  $('dotCos').style.display=S.companies.some(c=>[0,1].some(i=>!c.emps.some(e=>e.cargo===i)))?'block':'none';
+}
+
+/* ---------- Toast & info ---------- */
+function toast(html,kind=''){const t=document.createElement('div');t.className='toast '+kind;t.innerHTML=html;$('toasts').appendChild(t);setTimeout(()=>{t.style.transition='opacity .4s';t.style.opacity=0;setTimeout(()=>t.remove(),400)},3600);while($('toasts').children.length>3)$('toasts').firstChild.remove()}
+function showInfo(ic,title,html,cb){evtOpen=true;$('evtCard').innerHTML=`<div class="evt-ic">${ic}</div><h3>${title}</h3><p>${html}</p><button class="btn" id="eOk">Continuar</button>`;$('evt').classList.add('on');$('eOk').onclick=()=>{$('evt').classList.remove('on');evtOpen=false;renderView();cb&&cb()}}
+
+/* ================== HISTÓRIA (player) ================== */
+let storyOpen=false,evtOpen=false;
+function playScene(key,cb,replay){
+  const sc=SCENES[key];storyOpen=true;let i=0;let typing=null;let full='';
+  $('story').classList.add('on');$('stTitle').textContent=sc.title||'';
+  const end=(next)=>{clearInterval(typing);if(next){playScene(next,cb,replay);return}storyOpen=false;$('story').classList.remove('on');if(S.started){renderView()}cb&&cb()};
+  const showLine=()=>{
+    const L=sc.lines[i];const narr=L.w==='narr';
+    const who=L.w==='ceo'?{n:S.ceo.name,l:Object.assign({bg:'#25304b'},S.ceo.look)}:NPC[L.w];
+    $('stP').innerHTML=narr?'':avatar(who.l);$('stN').textContent=narr?'':who.n;
+    $('stT').className='st-text'+(narr?' narr':'');
+    full=txt(L.t);let n=0;$('stT').textContent='';$('stC').innerHTML='';$('stHint').style.display='none';
+    clearInterval(typing);typing=setInterval(()=>{n+=2;$('stT').textContent=full.slice(0,n);if(n>=full.length){clearInterval(typing);typing=null;done()}},18);
+  };
+  const done=()=>{const L=sc.lines[i];$('stT').textContent=full;
+    if(L.choice&&!replay){$('stC').innerHTML=L.choice.map((c,j)=>`<button class="btn ${j?'sec':''}" data-j="${j}">${c.t}</button>`).join('');$('stC').querySelectorAll('button').forEach(b=>b.onclick=ev=>{ev.stopPropagation();end(L.choice[+b.dataset.j].go)})}
+    else $('stHint').style.display='block'};
+  $('story').onclick=()=>{const L=sc.lines[i];
+    if(typing){clearInterval(typing);typing=null;done();return}
+    if(L.choice&&!replay)return;
+    if(L.go&&!replay){end(L.go);return}
+    i++;if(i>=sc.lines.length)end();else showLine()};
+  $('stSkip').onclick=ev=>{ev.stopPropagation();
+    const ci=sc.lines.findIndex(l=>l.choice);
+    if(ci>=0&&!replay&&i<ci){i=ci;showLine();return}
+    if(ci>=0&&!replay&&i===ci)return;
+    const g=sc.lines[sc.lines.length-1].go;end(replay?null:g)};
+  showLine();
+}
+
+function gainXP(x){const c=S.ceo;c.xp+=x;while(c.xp>=c.lvl*120){c.xp-=c.lvl*120;c.lvl++;c.pts++;toast(`🎖️ Você chegou ao nível ${c.lvl}! +1 ponto de atributo`,'good')}}
+function addLicao(k){if(!S.licoes.includes(k))S.licoes.push(k)}
+
+function completeChapter(){
+  const n=S.chapter;gainXP(100);
+  if(n===1){addLicao('cliente');S.chapter=2;S.flags.beto=true;playScene('ch2')}
+  else if(n===2){S.chapter=3;playScene('ch3')}
+  else if(n===3){addLicao('paga');S.chapter=4;playScene('ch4')}
+  else if(n===4){addLicao('cesta');S.chapter=5;S.flags.vortexOn=true;playScene('ch5')}
+  else if(n===5){playScene('final1',()=>{if(S.chapter===5){addLicao('negocia');S.chapter=6;S.flags.ato1=true;save();renderView()}})}
+  save();
+}
+function resumeChecks(){/* se o jogo foi fechado no meio de uma cena, o capítulo continua normalmente */}
+
+/* ================== EVENTOS ================== */
+function allEmps(){const r=[];S.companies.forEach(c=>c.emps.forEach(e=>r.push([c,e])));return r}
+const EVENTS = [
+  {id:'aumento',cond:()=>allEmps().some(([c,e])=>e.trait==='ambicioso'),make:()=>{const [c,e]=pick(allEmps().filter(([c,e])=>e.trait==='ambicioso'));const f=e.name.split(' ')[0];
+    return {who:empLook(e),tag:'Equipe',t:'Pedido de aumento',x:`${esc(e.name)}, ${RAMOS[c.ramo].cargos[e.cargo].n.toLowerCase()} da ${esc(c.name)}, bate na sua porta: "Tô entregando mais que todo mundo. Mereço 20% a mais."`,
+    o:[{t:'Dar o aumento',h:'+20% de salário, moral lá em cima',f:()=>{e.sal=Math.round(e.sal*1.2);e.moral=clamp(e.moral+30,0,100);return `${f} sai da sala sorrindo.`}},
+       {t:'Agora não dá',h:'Moral cai bastante',f:()=>{e.moral=clamp(e.moral-25,0,100);return `${f} engole seco e volta pro trabalho. Fique de olho.`}}]}}},
+  {id:'fornecedor',cond:()=>S.companies.some(c=>c.ramo==='alim'||c.ramo==='moda'),make:()=>({ic:'📦',tag:'Negócios',t:'Fornecedor barato',x:'Um fornecedor oferece matéria-prima 30% mais barata. Sem nota fiscal e sem perguntas sobre a origem.',
+    o:[{t:'Fechar negócio',h:'+15% de receita por 3 dias · Legado cai',f:()=>{S.buffs.push({m:1.15,d:3});S.legado-=10;S.flags.risco=(S.flags.risco||0)+1;return 'O lucro sobe. Mas alguém sempre fica sabendo.'}},
+       {t:'Recusar',h:'Legado sobe',f:()=>{S.legado+=5;return 'Você prefere dormir tranquilo. Seu pai aprovaria.'}}]})},
+  {id:'fiscal',cond:()=>S.day>4,make:()=>{const m=Math.round(500*scaleK()/50)*50;return {ic:'🧑‍💼',tag:'Governo',t:'Fiscalização surpresa',x:`Um fiscal encontrou uma irregularidade no alvará. A multa é de ${fmt(m)}. Ele olha pra você e comenta: "Mas tudo pode se resolver com um cafezinho..."`,
+    o:[{t:`Pagar a multa (${fmt(m)})`,h:'Caro, mas limpo',f:()=>{S.money-=m;S.legado+=3;return 'Multa paga. Alvará regularizado.'}},
+       {t:'Oferecer "um cafezinho"',h:'Legado despenca · pode dar errado',f:()=>{S.legado-=20;if(Math.random()<.5){S.money-=Math.round(m*.25);return `Saiu por ${fmt(m*.25)}. Ninguém viu... dessa vez.`}S.money-=m*2;S.rep=clamp(S.rep-8,0,100);return `O fiscal era honesto. Multa em dobro (${fmt(m*2)}) e o caso foi parar no jornal da cidade.`}}]}}},
+  {id:'influencer',cond:()=>S.companies.length>0,make:()=>{const k=Math.round(200*scaleK()/10)*10;return {ic:'🤳',tag:'Marketing',t:'Influenciador na porta',x:`Um influenciador da região, com 80 mil seguidores, quer produtos de graça em troca de um post. Custo: ${fmt(k)}.`,
+    o:[{t:'Aceitar a parceria',h:'+6 reputação',f:()=>{S.money-=k;S.rep=clamp(S.rep+6,0,100);return 'O post bombou. Gente nova chegando.'}},
+       {t:'Recusar',h:'Nada muda',f:()=>'Ele sai resmungando. Vida que segue.'}]}}},
+  {id:'doente',cond:()=>allEmps().length>=2,make:()=>{const [c,e]=pick(allEmps());const f=e.name.split(' ')[0];return {who:empLook(e),tag:'Equipe',t:'Funcionário doente',x:`${esc(e.name)} acordou com febre e pede dois dias de folga. A ${esc(c.name)} está cheia de trabalho.`,
+    o:[{t:'Folga paga',h:'Custa 1 dia de salário · equipe gosta',f:()=>{S.money-=empSal(e);c.emps.forEach(x=>x.moral=clamp(x.moral+6,0,100));S.legado+=3;return `${f} agradece. A equipe percebeu.`}},
+       {t:'Precisa vir trabalhar',h:'Legado e moral caem',f:()=>{S.legado-=8;e.moral=clamp(e.moral-20,0,100);c.emps.forEach(x=>x.moral=clamp(x.moral-4,0,100));return `${f} vem, mas o clima fica pesado.`}}]}}},
+  {id:'pedido',cond:()=>allEmps().length>=2,make:()=>{const k=scaleK();return {ic:'📋',tag:'Cliente',t:'Pedido gigante',x:'Uma empresa de fora quer um pedido enorme para amanhã. Só dá com a equipe fazendo hora extra.',
+    o:[{t:'Hora extra sem pagar',h:`+${fmt(1500*k)} · moral e Legado caem`,f:()=>{S.money+=1500*k;S.earned+=1500*k;allEmps().forEach(([c,e])=>e.moral=clamp(e.moral-12,0,100));S.legado-=6;return 'Pedido entregue. A equipe saiu às duas da manhã, calada.'}},
+       {t:'Pagar a hora extra',h:`+${fmt(700*k)} · moral sobe`,f:()=>{S.money+=700*k;S.earned+=700*k;allEmps().forEach(([c,e])=>e.moral=clamp(e.moral+5,0,100));return 'Pedido entregue e equipe feliz com o extra no bolso.'}}]}}},
+  {id:'reclama',cond:()=>S.companies.length>0,make:()=>{const c=pick(S.companies);const k=Math.round(150*scaleK()/10)*10;return {ic:'😡',tag:'Cliente',t:'Reclamação na internet',x:`Um cliente postou uma reclamação furiosa sobre a ${esc(c.name)}. Já tem 300 comentários.`,
+    o:[{t:`Responder e reembolsar (${fmt(k)})`,h:'+3 reputação',f:()=>{S.money-=k;S.rep=clamp(S.rep+3,0,100);return 'O cliente apagou o post e ainda elogiou o atendimento.'}},
+       {t:'Ignorar',h:'−5 reputação',f:()=>{S.rep=clamp(S.rep-5,0,100);return 'A reclamação continuou circulando a semana inteira.'}}]}}},
+  {id:'festa',cond:()=>allEmps().length>=3,make:()=>{const k=Math.round(100*allEmps().length/10)*10;return {ic:'🎉',tag:'Equipe',t:'Confraternização',x:'A equipe pergunta se rola um churrasco de fim de mês para comemorar o crescimento.',
+    o:[{t:`Bancar a festa (${fmt(k)})`,h:'+20 moral para todos',f:()=>{S.money-=k;allEmps().forEach(([c,e])=>e.moral=clamp(e.moral+20,0,100));return 'Teve até karaokê. Beto cantou "Evidências" três vezes.'}},
+       {t:'Fica pra próxima',h:'−5 moral',f:()=>{allEmps().forEach(([c,e])=>e.moral=clamp(e.moral-5,0,100));return 'Ninguém disse nada. Mas todo mundo lembrou.'}}]}}},
+  {id:'ong',cond:()=>S.day>6,make:()=>{const k=Math.round(500*scaleK()/50)*50;return {ic:'🤲',tag:'Comunidade',t:'Pedido de patrocínio',x:`O projeto de futebol para crianças da Vila Esperança precisa de ${fmt(k)} para uniformes.`,
+    o:[{t:'Patrocinar',h:'+5 reputação · Legado sobe',f:()=>{S.money-=k;S.rep=clamp(S.rep+5,0,100);S.legado+=8;return 'O logo da sua empresa agora está na camisa do time.'}},
+       {t:'Não dá agora',h:'Nada muda',f:()=>'Eles entendem. Vão tentar a Vortex.'}]}}},
+  {id:'viral',cond:()=>allEmps().some(([c,e])=>e.trait==='criativo'),make:()=>{const [c,e]=pick(allEmps().filter(([c,e])=>e.trait==='criativo'));return {who:empLook(e),tag:'Sorte',t:'Vídeo viral!',x:`${esc(e.name)} gravou um vídeo engraçado na ${esc(c.name)} e ele viralizou: 2 milhões de visualizações.`,
+    o:[{t:'Entrar na brincadeira',h:'+8 reputação · +20% receita por 2 dias',f:()=>{S.rep=clamp(S.rep+8,0,100);S.buffs.push({m:1.2,d:2});e.moral=clamp(e.moral+15,0,100);return 'Você virou meme. Do jeito bom.'}},
+       {t:'Manter a seriedade',h:'+2 reputação',f:()=>{S.rep=clamp(S.rep+2,0,100);return 'Discreto, mas o movimento aumentou um pouco.'}}]}}},
+  {id:'concorrente',cond:()=>S.companies.length>0,make:()=>{const c=pick(S.companies);const k=Math.round(400*scaleK()/50)*50;return {ic:'🏪',tag:'Mercado',t:'Concorrente baixou o preço',x:`Um concorrente perto da ${esc(c.name)} baixou os preços em 20%. Seus clientes estão comentando.`,
+    o:[{t:'Baixar também',h:'−15% receita por 3 dias · +4 reputação',f:()=>{S.buffs.push({m:.85,d:3,cid:c.id});S.rep=clamp(S.rep+4,0,100);return 'Guerra de preço. Seu caixa sente, mas os clientes ficam.'}},
+       {t:`Apostar em qualidade (${fmt(k)})`,h:'+10% receita por 3 dias',f:()=>{S.money-=k;S.buffs.push({m:1.1,d:3,cid:c.id});return 'Produto melhor, cliente fiel. O concorrente que lute.'}}]}}},
+  {id:'pai',once:true,cond:()=>S.chapter>=3,make:()=>({npc:'antonio',tag:'Família',t:'Visita do seu pai',x:'Seu Antônio aparece antes do turno da noite, com uma garrafa térmica de café. "Só vim ver como tá a firma."',
+    o:[{t:'Mostrar os números',h:'+XP',f:()=>{gainXP(60);return '"Esse é o lucro de um dia? O meu era de uma semana." Ele ri e enxuga o olho disfarçando.'}},
+       {t:'Pedir um conselho',h:'+10 moral para todos',f:()=>{allEmps().forEach(([c,e])=>e.moral=clamp(e.moral+10,0,100));return '"Chama a turma pelo nome e paga em dia. O resto se ajeita." Você repete isso pra equipe no dia seguinte.'}}]})},
+  {id:'vortex',cond:()=>S.flags.vortexOn&&allEmps().some(([c,e])=>!e.special&&e.trait!=='leal'&&(e.moral<60||e.trait==='ambicioso')),make:()=>{
+    const [c,e]=pick(allEmps().filter(([c,e])=>!e.special&&e.trait!=='leal'&&(e.moral<60||e.trait==='ambicioso')));const f=e.name.split(' ')[0];
+    return {npc:'otavio',tag:'Rival',t:'A Vortex quer seu funcionário',x:`${esc(e.name)} recebeu uma proposta da Vortex: 40% a mais de salário. ${f} veio te avisar antes de responder.`,
+    o:[{t:'Cobrir a oferta',h:'+30% salário · moral sobe',f:()=>{e.sal=Math.round(e.sal*1.3);e.moral=clamp(e.moral+15,0,100);return `${f} fica. Otávio vai ter que tentar de novo.`}},
+       {t:'Conversar e convencer',h:`Teste de Liderança (${S.ceo.attr.lid}/10)`,f:()=>{const ch=.3+.07*S.ceo.attr.lid+(S.ceo.perfil==='lid'?.1:0);if(Math.random()<ch){e.moral=clamp(e.moral+10,0,100);return `"Eu acredito no que a gente tá construindo aqui." ${f} recusa a Vortex.`}c.emps=c.emps.filter(x=>x!==e);return `${f} agradece a conversa... e aceita a proposta. A Vortex levou mais um.`}},
+       {t:'Deixar ir',h:'Perde o funcionário',f:()=>{c.emps=c.emps.filter(x=>x!==e);return `${f} vai para a Vortex. A vaga fica aberta.`}}]}}}
+];
+function maybeEvent(){
+  if(S.chapter<2||storyOpen||evtOpen)return;
+  if(Math.random()>.42)return;
+  const pool=EVENTS.filter(ev=>!(ev.once&&S.seen[ev.id])&&ev.cond()&&S.lastEvt!==ev.id);
+  if(!pool.length)return;
+  const ev=pick(pool.flatMap(e=>e.id==='vortex'?[e,e]:[e]));S.seen[ev.id]=1;S.lastEvt=ev.id;showEvent(ev.make());
+}
+function showEvent(E){
+  evtOpen=true;
+  const ic=E.npc?avatar(NPC[E.npc].l):E.who?avatar(E.who):E.ic;
+  $('evtCard').innerHTML=`<div class="evt-ic">${ic}</div><div class="evt-tag">${E.tag}</div><h3>${E.t}</h3><p>${E.x}</p>${E.o.map((o,i)=>`<button class="opt" data-o="${i}"><b>${o.t}</b><small>${o.h}</small></button>`).join('')}`;
+  $('evt').classList.add('on');
+  $('evtCard').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const r=E.o[+b.dataset.o].f();S.legado=clamp(S.legado,-100,100);save();
+    $('evtCard').innerHTML=`<div class="evt-ic">${ic}</div><div class="evt-tag">${E.tag}</div><h3>${E.t}</h3><p>${r}</p><button class="btn" id="eOk">Continuar</button>`;
+    $('eOk').onclick=()=>{$('evt').classList.remove('on');evtOpen=false;if(sheetStack.length)renderSheet();renderView()}});
+}
+
+/* ================== DIA ================== */
+function endDay(){
+  const rev=S.todayRev,cost=totCost();
+  S.money-=cost;S.day++;S.dayT=0;S.todayRev=0;
+  const decayMul=S.licoes.includes('paga')?.5:1;
+  const quits=[];
+  S.companies.forEach(c=>{
+    const loss=compRev(c)<compCost(c);const fof=c.emps.filter(e=>e.trait==='fofoqueiro');
+    c.emps.forEach(e=>{
+      let d=-3+(S.money>=0?2:-8)+(S.ceo.attr.lid-1)*.5+(S.ceo.perfil==='lid'?2:0);
+      if(loss)d-=2;d-=3*fof.filter(f=>f!==e).length;
+      if(d<0){d*=decayMul;if(e.trait==='leal')d*=.5}
+      e.moral=clamp(e.moral+d,0,100);
+      if(e.moral<15){e.low=(e.low||0)+1}else e.low=0;
+      if(e.low>=2&&!e.special)quits.push([c,e]);
+    });
+    if(c.mkt>0){c.mkt--;S.rep=clamp(S.rep+1+S.ceo.attr.car*.2,0,100)}
+  });
+  quits.forEach(([c,e])=>{c.emps=c.emps.filter(x=>x!==e);toast(`😞 ${esc(e.name)} pediu demissão da ${esc(c.name)} (moral baixa)`,'bad')});
+  S.buffs.forEach(b=>b.d--);S.buffs=S.buffs.filter(b=>b.d>0);
+  // reputação volta devagar para 30 quando muito alta sem marketing
+  if(S.rep>60&&!S.companies.some(c=>c.mkt>0))S.rep-=.3;
+  gainXP(10);
+  // sede
+  while(S.hq<HQS.length-1&&patrimonio()>=HQS[S.hq+1].min&&(S.hq+1!==1||S.chapter>=5)){S.hq++;toast(`🏢 Nova sede: ${HQS[S.hq].n}! Agora cabem ${HQS[S.hq].max} empresas.`,'good')}
+  if(S.companies.length)toast(`📅 Dia ${S.day-1} · Receita <b class="green">${fmt(rev)}</b> · Custos <b class="red">${fmt(cost)}</b> · Lucro <b class="${rev-cost>=0?'green':'red'}">${fmt(rev-cost)}</b>`);
+  // falência
+  if(S.money<0){S.debt++;if(S.debt<3)toast(`⚠ Caixa negativo (${S.debt}/3). Corte custos!`,'bad')}else S.debt=0;
+  if(S.debt>=3){S.debt=0;if(!S.flags.cida){S.flags.cida=1;S.money+=2000;playScene('falencia1')}else{S.flags.marcos=(S.flags.marcos||0)+1;S.money+=3000;playScene('falencia2')}}
+  else maybeEvent();
+  save();
+  if(tab==='ceo'||tab==='story')renderView();
+}
+
+/* ================== LOOP ================== */
+let last=performance.now(),acc=0,acc2=0;
+function loop(now){
+  const dt=Math.min(1,(now-last)/1000);last=now;
+  if(S&&S.started&&!storyOpen&&!evtOpen){
+    const rps=totRev()/DAY;S.money+=rps*dt;S.todayRev+=rps*dt;S.earned+=rps*dt;
+    S.dayT+=dt/DAY;if(S.dayT>=1)endDay();
+    if(S.chapter>=1&&S.chapter<=5&&CHAPTERS[S.chapter].check())completeChapter();
+  }
+  acc+=dt;if(acc>.25){acc=0;updateLive()}
+  acc2+=dt;if(acc2>3){acc2=0;if(sheetStack.length&&!storyOpen&&!evtOpen&&!(document.activeElement&&document.activeElement.tagName==='INPUT'))renderSheet()}
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ================== INÍCIO ================== */
+let homeDone=false;function goHome(){if(homeDone)return;homeDone=true;show('home');initHome()}
+setTimeout(goHome,2700);
+$('splash').onclick=goHome;
+window.__ceo={get S(){return S},endDay,completeChapter};
+</script>
+</body>
+</html>
