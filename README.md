@@ -6,6 +6,20 @@ Você é filho de um pequeno comerciante que perdeu tudo para o Grupo Vortex. Co
 
 **Jogar:** https://moraisstudio92-svg.github.io/CEOLIFE/
 
+## Como publicar uma atualização
+
+1. Suba o novo `index.html` com a constante `VERSION` nova.
+2. Atualize `version.json` com a mesma versão e uma nota curta (ex.: `{"v":"0.3","nota":"Atualização de novos ramos"}`).
+
+Quem estiver com o jogo aberto vê o aviso **Nova atualização** e o jogo recarrega sozinho em 5 segundos.
+
+## Versão 0.2 — Cena ao vivo e filiais
+
+- Cena isométrica ao vivo de cada empresa, com cada funcionário na sua função
+- Rua com motoboys saindo para entregar, clientes, carros e dia e noite
+- Filiais: abra mais unidades da mesma empresa (bônus de rede)
+- Tela inicial nova, música calma e atualização automática
+
 ## Versão 0.1 — Base do jogo
 
 - Criação do CEO (nome, visual e perfil)
@@ -18,4 +32,5 @@ Você é filho de um pequeno comerciante que perdeu tudo para o Grupo Vortex. Co
 ## Arquivos
 
 - `index.html` — o jogo inteiro (HTML, CSS e JavaScript)
+- `version.json` — versão atual, usada pelo aviso de atualização automática
 - `manifest.webmanifest` e `icon-*.png` — permitem adicionar o jogo à tela inicial do celular
