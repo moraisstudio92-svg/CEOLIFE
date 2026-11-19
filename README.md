@@ -13,6 +13,14 @@ Você é filho de um pequeno comerciante que perdeu tudo para o Grupo Vortex. Co
 
 Quem estiver com o jogo aberto vê o aviso **Nova atualização** e o jogo recarrega sozinho em 5 segundos.
 
+## Versão 0.3 — Tela cheia, horário e decoração
+
+- O jogo é a própria cena, em tela cheia, com botões transparentes por cima
+- Lojas com horário de abrir e fechar; à noite a equipe vai embora e o tempo acelera
+- Toque em qualquer posto (balcão, fogão, mesa, moto) para subir o nível (+20% por nível)
+- Decoração: piso, paredes, plantas, iluminação, quadros e fachada (+4% de receita cada)
+- Personagens e ambientes com mais detalhe e sombras; câmera mais afastada
+
 ## Versão 0.2 — Cena ao vivo e filiais
 
 - Cena isométrica ao vivo de cada empresa, com cada funcionário na sua função

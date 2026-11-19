@@ -2,7 +2,7 @@
   "name": "CEO: Do Zero ao Império",
   "short_name": "CEO",
   "start_url": "./",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#0b0f1a",
   "theme_color": "#0b0f1a",
