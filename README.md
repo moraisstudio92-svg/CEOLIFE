@@ -13,6 +13,14 @@ Você é filho de um pequeno comerciante que perdeu tudo para o Grupo Vortex. Co
 
 Quem estiver com o jogo aberto vê o aviso **Nova atualização** e o jogo recarrega sozinho em 5 segundos.
 
+## Versão 0.5 — Gráficos, bairros e andares
+
+- Gramado com faixas de corte, tufos e flores; árvores, palmeiras, pinheiros e arbustos detalhados; nuvens, sol e lua
+- Cada local tem seu ambiente: cidade pequena, centro com prédios, praia, lago, serra, zona industrial, boulevard e bairros
+- Câmera afastada mostra o prédio por fora (fachada, vitrine, andares, telhado e caixa d'água); de perto mostra o interior
+- Andares: até 3 por empresa, cada um com ambiente próprio (+15% de receita)
+- Mais difícil: offline rende 8% do lucro (20% com gerente) por até 2h, impostos de 10%, aluguel e melhorias mais caros
+
 ## Versão 0.4 — Veículos, beco e estacionamento
 
 - Carros novos (sedã, hatch, SUV, picape, táxi, van) e moto detalhada
