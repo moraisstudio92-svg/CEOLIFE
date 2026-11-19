@@ -13,6 +13,14 @@ Você é filho de um pequeno comerciante que perdeu tudo para o Grupo Vortex. Co
 
 Quem estiver com o jogo aberto vê o aviso **Nova atualização** e o jogo recarrega sozinho em 5 segundos.
 
+## Versão 0.4 — Veículos, beco e estacionamento
+
+- Carros novos (sedã, hatch, SUV, picape, táxi, van) e moto detalhada
+- Beco das motos ao lado da loja, com porta lateral para os entregadores
+- Estacionamento com clientes que chegam de carro
+- Calçada com bancos, árvores e mesinhas
+- Área externa com melhorias em níveis (aba no Decorar)
+
 ## Versão 0.3 — Tela cheia, horário e decoração
 
 - O jogo é a própria cena, em tela cheia, com botões transparentes por cima
