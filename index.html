@@ -14,6 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="CEO">
 
 
+
 <style>
 :root{--bg:#0b0f1a;--bg2:#10172a;--card:#161e33;--card2:#1f2944;--line:#2a3552;--tx:#eef1f7;--mu:#8d97ad;--gold:#e8b54d;--gold2:#ffd27a;--green:#45d38a;--red:#ff6b6b;--blue:#5aa9ff}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -407,8 +408,8 @@ small{font-size:12px}
 /* ================== DADOS ================== */
 const DAY = 30;            // segundos reais por dia de jogo
 const SAVE_KEY = 'ceo_imperio_v01';
-const VERSION = '0.7';
-const UPDATE_NOTE = 'Cenário novo: colinas, casas, rua e iluminação';
+const VERSION = '0.8';
+const UPDATE_NOTE = 'Gráficos em alta resolução e bairro reconstruído';
 
 const RAMOS = {
   alim:{nome:'Alimentação',e:'🍔',cor:'#ff8a4c',custo:3000,aluguel:60,base:320,sm:1.0,
@@ -2028,7 +2029,7 @@ function mountains(ctx){
   const m=[[-30,-40,320,'#6f8fa8'],[-5,-45,380,'#5f7f99'],[20,-38,300,'#6f8fa8']];
   for(const [x,y,h,cl] of m){const a=P(x-18,y),b=P(x+18,y),tp=P(x,y,h);poly(ctx,[a,b,tp],cl);poly(ctx,[tp,b,[tp[0]+(b[0]-tp[0])*.35,tp[1]+(b[1]-tp[1])*.35]],shade(cl,.85));poly(ctx,[tp,[tp[0]-26,tp[1]+40],[tp[0]+20,tp[1]+44]],'#eef3f8')}
 }
-function backdrop(ctx,c,env){
+function backdrop0(ctx,c,env){
   const lit=night()>.5;
   if(env==='serra')mountains(ctx);
   if(env==='vila'||env==='jardim'||env==='lago'||env==='serra'){
@@ -2292,7 +2293,7 @@ function drawLive0(now){
   if(now-lastLive<33)return;lastLive=now;
   const t=now/1000;const cv=$('gameCv');if(!cv||!cv.offsetParent)return;
   const c=viewCompany();if(VF>=(c.floors||1))VF=0;
-  const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;const dpr=Math.min(2,window.devicePixelRatio||1);
+  const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;const dpr=Math.min(3,window.devicePixelRatio||1);
   if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
   const cam=camFor(cv);const fz=fitZoom(cv);if(cam.z==null)cam.z=fz;
   if(cam.z!==prevZ){prevZ=cam.z;zoomAt=now}
@@ -2302,7 +2303,7 @@ function drawLive0(now){
   const src=m=>{const s=m.z*dpr;return [(cam.cx-w/2/cam.z-m.cx)*s+m.W/2,(cam.cy-h/2/cam.z-m.cy)*s+m.H/2,w/cam.z*s,h/cam.z*s]};
   let need=!sMeta||sMeta.key!==key;
   if(!need){const r=src(sMeta);const inside=r[0]>=0&&r[1]>=0&&r[0]+r[2]<=sMeta.W+1&&r[1]+r[3]<=sMeta.H+1;if(!inside||(sMeta.z!==cam.z&&now-zoomAt>220))need=true}
-  if(need){const M=1.5;const W=Math.round(w*M*dpr),H=Math.round(h*M*dpr);if(sCache.width!==W||sCache.height!==H){sCache.width=W;sCache.height=H}
+  if(need){const M=dpr>2?1.3:1.5;const W=Math.round(w*M*dpr),H=Math.round(h*M*dpr);if(sCache.width!==W||sCache.height!==H){sCache.width=W;sCache.height=H}
     const sc=sCache.getContext('2d');sc.setTransform(1,0,0,1,0,0);
     const g=sc.createLinearGradient(0,0,0,H);g.addColorStop(0,s1);g.addColorStop(.5,s2);g.addColorStop(1,s2);sc.fillStyle=g;sc.fillRect(0,0,W,H);clouds(sc,W/dpr,H/dpr,dpr);
     sc.setTransform(dpr*cam.z,0,0,dpr*cam.z,W/2-cam.cx*cam.z*dpr,H/2-cam.cy*cam.z*dpr);drawStatic(sc,c);
@@ -2474,21 +2475,29 @@ function house(ctx,x,y,w,d,h,wall,roof,seed,lit){
     if(face==='x'&&seed%2===0){box(ctx,x0-.04,y+d,x1-x0+.08,.12,3.5,'#7a4a2a',z0-5);for(let i=0;i<4;i++){const p=P(x0+(i+.5)*(x1-x0)/4,y+d+.06,z0-1);ell(ctx,p[0],p[1],2.2,2,['#e35d9b','#f6d04d','#ef6a3a','#fff'][(i+seed)%4])}}};
   for(const wx of [x+w*.56,x+w*.82].filter(v=>v+.2<x+w-.08))win(wx-.2,wx+.2,14,30,'x');
   if(d>1)win(y+d*.35,y+d*.65,14,30,'y');
-  // telhado
-  const rh=d*16,o=.18;
-  poly(ctx,[P(x-o,y+d/2,h+rh),P(x+w+o,y+d/2,h+rh),P(x+w+o,y-o,h),P(x-o,y-o,h)],shade(roof,.62));
-  poly(ctx,[P(x+w,y,h),P(x+w,y+d,h),P(x+w,y+d/2,h+rh)],shade(wall,.86));
-  const cw=P(x+w,y+d/2,h+rh*.45);ell(ctx,cw[0],cw[1],2.6,3.4,lit?'#ffd98a':'#7fb2d8','#fff');
-  const fr=[P(x-o,y+d+o,h-2),P(x+w+o,y+d+o,h-2),P(x+w+o,y+d/2,h+rh),P(x-o,y+d/2,h+rh)];
-  const rg=ctx.createLinearGradient(0,fr[3][1],0,fr[0][1]);rg.addColorStop(0,shade(roof,1.12));rg.addColorStop(1,shade(roof,.88));poly(ctx,fr,rg);
-  ctx.lineWidth=1;for(let k=1;k<7;k++){const u=k/7;const a=P(x-o,y+d+o-(d/2+o)*u,h-2+(rh+2)*u),b=P(x+w+o,y+d+o-(d/2+o)*u,h-2+(rh+2)*u);ctx.strokeStyle='rgba(90,25,10,.35)';ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();ctx.strokeStyle='rgba(255,200,160,.25)';ctx.beginPath();ctx.moveTo(a[0],a[1]+1.2);ctx.lineTo(b[0],b[1]+1.2);ctx.stroke()}
-  ctx.strokeStyle='rgba(90,25,10,.22)';ctx.beginPath();for(let xx=x-o+.22;xx<x+w+o;xx+=.22){const a=P(xx,y+d+o,h-2),b=P(xx,y+d/2,h+rh);ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1])}ctx.stroke();
-  ln(ctx,[P(x-o,y+d+o,h-2),P(x+w+o,y+d+o,h-2)],shade(roof,.6),2.2);
-  ln(ctx,[P(x+w+o,y+d+o,h-2),P(x+w+o,y+d/2,h+rh),P(x+w+o,y-o,h)],shade(roof,.7),2.4);
-  ln(ctx,[P(x-o,y+d/2,h+rh),P(x+w+o,y+d/2,h+rh)],shade(roof,.75),2.6);
-  if(seed%3!==2){const cx=x+w*.72,cy=y+d*.3;box(ctx,cx,cy,.28,.28,rh+16,'#a8553a',h);box(ctx,cx-.03,cy-.03,.34,.34,3,'#6e3a2a',h+rh+16)}
+  // telhado de duas águas: cumeeira em x, oitão (empena) no lado direito
+  const rh=d*16,o=.2,eh=h-2;
+  const apex=P(x+w+o,y+d/2,h+rh),apexL=P(x-o,y+d/2,h+rh);
+  poly(ctx,[apexL,apex,P(x+w+o,y-o,eh),P(x-o,y-o,eh)],shade(roof,.55));
+  poly(ctx,[P(x+w,y,h),P(x+w,y+d,h),P(x+w,y+d/2,h+rh-1)],shade(wall,.84));
+  const gw=ctx.createLinearGradient(0,P(x+w,y+d/2,h+rh)[1],0,P(x+w,y+d,h)[1]);gw.addColorStop(0,'rgba(0,0,0,.12)');gw.addColorStop(1,'rgba(0,0,0,0)');poly(ctx,[P(x+w,y,h),P(x+w,y+d,h),P(x+w,y+d/2,h+rh-1)],gw);
+  const cw=P(x+w,y+d/2,h+rh*.42);ell(ctx,cw[0],cw[1],3.2,4.2,'#ffffff');ell(ctx,cw[0],cw[1],2.3,3.2,lit?'#ffd98a':'#86b6dc');ln(ctx,[[cw[0],cw[1]-3.2],[cw[0],cw[1]+3.2]],'#fff',.8);
+  const fr=[P(x-o,y+d+o,eh),P(x+w+o,y+d+o,eh),apex,apexL];
+  const rg=ctx.createLinearGradient(0,apexL[1],0,fr[0][1]);rg.addColorStop(0,shade(roof,1.14));rg.addColorStop(1,shade(roof,.86));poly(ctx,fr,rg);
+  ctx.lineWidth=1;for(let k=1;k<8;k++){const u=k/8;const a=P(x-o,y+d+o-(d/2+o)*u,eh+(rh+2)*u),b=P(x+w+o,y+d+o-(d/2+o)*u,eh+(rh+2)*u);ctx.strokeStyle='rgba(90,25,10,.38)';ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();ctx.strokeStyle='rgba(255,205,165,.28)';ctx.beginPath();ctx.moveTo(a[0],a[1]+1.1);ctx.lineTo(b[0],b[1]+1.1);ctx.stroke()}
+  ctx.strokeStyle='rgba(90,25,10,.2)';ctx.beginPath();for(let xx=x-o+.2,j=0;xx<x+w+o-.05;xx+=.2,j++)for(let k=0;k<8;k++){const u0=k/8,u1=(k+1)/8;const off=(k%2)*.1;const a=P(Math.min(xx+off,x+w+o),y+d+o-(d/2+o)*u0,eh+(rh+2)*u0),b=P(Math.min(xx+off,x+w+o),y+d+o-(d/2+o)*u1,eh+(rh+2)*u1);ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1])}ctx.stroke();
+  // beiral frontal e testeira da empena (espessura do telhado)
+  vx(ctx,x-o,x+w+o,y+d+o,eh-4,eh,shade(roof,.62));vx(ctx,x-o,x+w+o,y+d+o,eh-5.5,eh-4,'#f4efe6');
+  poly(ctx,[P(x+w+o,y+d+o,eh),apex,P(x+w+o,y-o,eh),P(x+w+o,y-o,eh-4),P(x+w+o,y+d/2,h+rh-4),P(x+w+o,y+d+o,eh-4)],shade(roof,.5));
+  ln(ctx,[P(x+w+o,y+d+o,eh-4.5),P(x+w+o,y+d/2,h+rh-4.5),P(x+w+o,y-o,eh-4.5)],'#f4efe6',1.4);
+  ln(ctx,[apexL,apex],shade(roof,.68),3);ln(ctx,[[apexL[0],apexL[1]-1],[apex[0],apex[1]-1]],shade(roof,1.2),1);
+  // sombra do beiral na parede
+  vx(ctx,x,x+w,y+d,h-7,h,'rgba(0,0,0,.14)');vy(ctx,y,y+d,x+w,h-5,h,'rgba(0,0,0,.1)');
+  if(seed%3!==2){const cx=x+w*.7,cy=y+d*.62,zb=h+rh*(1-(cy-(y+d/2))/(d/2+o))-6;box(ctx,cx,cy,.3,.3,h+rh+14-zb,'#b05a3c',zb);ctx.strokeStyle='rgba(60,20,10,.25)';for(let k=zb+4;k<h+rh+14;k+=4){ctx.beginPath();const a=P(cx,cy+.3,k),b=P(cx+.3,cy+.3,k);ctx.moveTo(...a);ctx.lineTo(...b);ctx.stroke()}box(ctx,cx-.04,cy-.04,.38,.38,3,'#6e3a2a',h+rh+14)}
   // cerquinha branca e arbustos
-  const fy=y+d+.72;picket(ctx,x-.2,x+w+.2,fy,dx0-.15,dx1+.15);
+  const fy=y+d+.72;flat(ctx,dx0-.02,y+d+.22,dx1-dx0+.04,fy-y-d-.2,0,'#d9cfbd');for(let k=0;k<3;k++)flat(ctx,dx0,y+d+.26+k*.16,dx1-dx0,.1,0,'rgba(140,120,90,.18)');
+  for(let i=0;i<6;i++){const bx=x+.1+i*(w-.2)/5;if(bx>dx0-.15&&bx<dx1+.15)continue;const [px,py]=P(bx,y+d+.12);ell(ctx,px,py-3,5,3.6,i%2?'#3f8f3a':'#4a9a40');ell(ctx,px-1,py-6,2,1.6,['#e35d9b','#f6d04d','#fff','#ef6a3a'][(i+seed)%4])}
+  picket(ctx,x-.2,x+w+.2,fy,dx0-.15,dx1+.15);
   for(const bx of [x-.1,x+w+.05]){const [bpx,bpy]=P(bx,fy+.05);for(const [ox,oy,r,cl] of [[0,-6,7,'#3d8a3c'],[-5,-4,5,'#459443'],[4,-9,5,'#5aa84f']])ell(ctx,bpx+ox,bpy+oy,r,r*.8,cl)}
 }
 
@@ -2547,15 +2556,13 @@ function drawGround5(ctx,c){
   ln(ctx,[P(-72,13.2),P(82,13.2)],'#b9b1a2',1.6);
   flat(ctx,10.4,9.3,1.7,.16,0,'#9a9286');if(eLvl(c,'estac')>=1)flat(ctx,12.8,9.3,4.8,.16,0,'#9a9286');
   if(E.ground==='grass'){lawn(ctx,18.2,0,28,8,E.g,21)}
-  drawExterior(ctx,c);
 }
 function drawStatic(ctx,c){
   const env=envOf(c),E=ENVS[env];
   drawGround5(ctx,c);
   const lit=night()>.5;const resid=env==='vila'||env==='jardim'||env==='lago'||env==='serra';
-  if(resid){for(const [x,y,i] of [[22.6,-1.4,31],[19.4,-1.2,32],[22.8,2.6,33]])house(ctx,x,y,2.2,1.9,40,'','',i,lit);tree(ctx,20.4,3.6,1.1,'blossom',7);tree(ctx,25.6,5.4,1,'round',8)}
   backdrop(ctx,c,env);
-  if(resid)tree(ctx,-8.4,-1,1.15,'blossom',3);
+  drawExterior(ctx,c);
   drawFloor(ctx,c);drawWalls(ctx,c,0);
   if(E.far!=='sea'&&E.far!=='lake'){
     for(let i=0;i<12;i++){const x=-12+i*3+rr2(i+3)*1.2,y=14.3+rr2(i+8)*.8;tree(ctx,x,y,.8+rr2(i)*.3,'bush',i)}
@@ -2608,6 +2615,23 @@ function drawLive(now){const before=lastLive;drawLive0(now);if(lastLive===before
 
 function fitZoom(cv){return cv.clientWidth/940}
 function camFor(cv){if(!cams.main)cams.main={cx:110,cy:122,z:null};return cams.main}
+
+/* ---------- Bairro em lotes (sem árvores dentro dos quintais) ---------- */
+function church(ctx){box(ctx,14,-5.2,1.6,1.6,70,'#f4efe6');for(let z=14;z<64;z+=16)vx(ctx,14.55,15.05,-3.6,z,z+10,'#7fb2d8');vx(ctx,14.5,15.1,-3.6,0,24,'#7a4a2a');
+  poly(ctx,[P(14,-3.6,70),P(15.6,-3.6,70),P(14.8,-4.4,105)],'#c9512f');poly(ctx,[P(15.6,-5.2,70),P(15.6,-3.6,70),P(14.8,-4.4,105)],'#a8432a');ln(ctx,[P(14.8,-4.4,105),P(14.8,-4.4,120)],'#5a5a5a',1.6);ln(ctx,[P(14.6,-4.4,115),P(15,-4.4,115)],'#5a5a5a',1.6)}
+function lots(env){
+  const L=[];for(let x=-14.2;x<27;x+=4.3){if(env==='vila'&&x>11.5&&x<16.4)continue;L.push({x:x+.5,y:-4.7,tr:[x+3.55,-3.9]})}
+  for(const x of [-11.4,-6.7])for(const y of [0.9,5.0])L.push({x,y,tr:x<-8?[x+3.1,y+.6]:null});
+  if(env==='vila'||env==='jardim')for(const x of [19.6,24])for(const y of [0.8,4.9])L.push({x,y,tr:x<22?[x+3.15,y+.5]:null});
+  return L}
+function backdrop(ctx,c,env){
+  if(!(env==='vila'||env==='jardim'||env==='lago'||env==='serra'))return backdrop0(ctx,c,env);
+  const lit=night()>.5;const big=env==='jardim';const items=[];let i=0;
+  for(const l of lots(env)){items.push({d:l.x+l.y,f:((l,i)=>()=>{if(env==='serra'&&i%3===1){tree(ctx,l.x+1,l.y+1,1.2,'pine',i);return}house(ctx,l.x,l.y,big?2.5:2.2,big?2.1:1.9,big?46:40,'','',i,lit)})(l,i)});
+    if(l.tr)items.push({d:l.tr[0]+l.tr[1]-.5,f:((l,i)=>()=>tree(ctx,l.tr[0],l.tr[1],.78+rr2(i)*.2,env==='serra'?'pine':i%5===2?'blossom':'round',i+20))(l,i)});i++}
+  if(env==='vila')items.push({d:14+-4,f:()=>church(ctx)});
+  items.sort((a,b)=>a.d-b.d).forEach(o=>o.f());
+}
 
 /* ================== MÚSICA (renderizada em áudio, toca no primeiro toque) ================== */
 const Music={el:null,on:(()=>{try{return localStorage.getItem('ceo_music')!=='0'}catch(e){return true}})(),want:false,fade:null,
