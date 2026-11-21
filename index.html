@@ -15,6 +15,7 @@
 
 
 
+
 <style>
 :root{--bg:#0b0f1a;--bg2:#10172a;--card:#161e33;--card2:#1f2944;--line:#2a3552;--tx:#eef1f7;--mu:#8d97ad;--gold:#e8b54d;--gold2:#ffd27a;--green:#45d38a;--red:#ff6b6b;--blue:#5aa9ff}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -408,8 +409,8 @@ small{font-size:12px}
 /* ================== DADOS ================== */
 const DAY = 30;            // segundos reais por dia de jogo
 const SAVE_KEY = 'ceo_imperio_v01';
-const VERSION = '0.8';
-const UPDATE_NOTE = 'Gráficos em alta resolução e bairro reconstruído';
+const VERSION = '0.9';
+const UPDATE_NOTE = 'Começo na garagem e tela inicial nova';
 
 const RAMOS = {
   alim:{nome:'Alimentação',e:'🍔',cor:'#ff8a4c',custo:3000,aluguel:60,base:320,sm:1.0,
@@ -646,7 +647,7 @@ function compRev(c){let s=0;for(let i=0;i<4;i++){{const wk=ROOMK[c.ramo][i]==='w
 function compRevDay(c){return compRev(c)*openLen(c)/12}
 function salMult(){let m=1;if(S.ceo.perfil==='neg')m*=.85;m*=1-.02*(S.ceo.attr.neg-1);if(S.licoes.includes('negocia'))m*=.95;return m}
 function empSal(e){return e.sal*salMult()}
-function rent(c){return RAMOS[c.ramo].aluguel*1.5*(1+.5*(c.lvl-1))*(1+.6*((c.floors||1)-1))}
+function rent0(c){return RAMOS[c.ramo].aluguel*1.5*(1+.5*(c.lvl-1))*(1+.6*((c.floors||1)-1))}
 function compCost(c){return c.emps.reduce((s,e)=>s+empSal(e),0)+rent(c)+compRevDay(c)*.1}
 function totRev(){return S.companies.reduce((s,c)=>s+compRevDay(c),0)}
 function totCost(){return S.companies.reduce((s,c)=>s+compCost(c),0)}
@@ -815,13 +816,13 @@ function sheetNewCo(a){
   if(a.mode==='filial')return sheetFilial(a);
   const sel=a.sel;let h=head('Nova empresa',S.companies.length>0)+`<div class="sh-body"><p class="mu" style="margin-bottom:12px">Escolha o ramo. Cada ramo pede cargos diferentes.</p><div class="ramos">`;
   for(const k of RAMO_ORDER){const R=RAMOS[k];const lock=R.lockCh&&S.chapter<R.lockCh;
-    h+=`<button class="ramo ${sel===k?'on':''} ${lock?'lock':''}" data-r="${k}" ${lock?'disabled':''}>${lock?'<span class="lk">🔒</span>':''}<div class="e">${R.e}</div><b>${R.nome}</b><small>${lock?'Libera no capítulo '+R.lockCh:fmt(R.custo)}</small></button>`}
+    h+=`<button class="ramo ${sel===k?'on':''} ${lock?'lock':''}" data-r="${k}" ${lock?'disabled':''}>${lock?'<span class="lk">🔒</span>':''}<div class="e">${R.e}</div><b>${R.nome}</b><small>${lock?'Libera no capítulo '+R.lockCh:fmt(openCost(R))}</small></button>`}
   h+='</div>';
   if(sel){const R=RAMOS[sel];if(!a.name)a.name=pick(R.nomes.filter(n=>!S.companies.some(c=>c.name===n)))||R.nomes[0];
-    h+=`<div class="card"><div class="mu" style="margin-bottom:8px">${R.desc}</div><div class="kv"><span>Abertura</span><b>${fmt(R.custo)}</b></div><div class="kv"><span>Aluguel por dia</span><b>${fmt(R.aluguel)}</b></div><div class="kv"><span>Porte inicial</span><b>${R.portes[0]}</b></div><div style="margin-top:10px;font-size:14px">${R.cargos.map((c,i)=>`<div style="padding:4px 0">${c.e} ${c.n} ${i<2?'<span class="ess">essencial</span>':i===2?'<small class="mu">· nível 2</small>':'<small class="mu">· nível 3, +20% na empresa</small>'}</div>`).join('')}</div></div>
+    h+=`<div class="card"><div class="mu" style="margin-bottom:8px">${R.desc}</div><div class="kv"><span>Abertura</span><b>${fmt(openCost(R))}</b></div><div class="kv"><span>Aluguel por dia</span><b>${fmt(Math.round(R.aluguel*1.5*(S.companies.length?1:.4)))}</b></div>${S.companies.length?"":`<div class="kv"><span>Local</span><b>🏠 Garagem de casa</b></div>`}<div class="kv"><span>Porte inicial</span><b>${R.portes[0]}</b></div><div style="margin-top:10px;font-size:14px">${R.cargos.map((c,i)=>`<div style="padding:4px 0">${c.e} ${c.n} ${i<2?'<span class="ess">essencial</span>':i===2?'<small class="mu">· nível 2</small>':'<small class="mu">· nível 3, +20% na empresa</small>'}</div>`).join('')}</div></div>
     <div class="field"><label>Nome da empresa</label><input class="inp" id="coName" maxlength="22" value="${esc(a.name)}"></div>
     <div class="field"><label>Local · ${ENVNAME[ENVMAP[a.place||'Vila Esperança']]}</label><div class="bairros">${PLACES.map(b=>`<button class="${(a.place||'Vila Esperança')===b?'on':''}" data-pl="${esc(b)}">${esc(b)}</button>`).join('')}</div></div>
-    <button class="btn" id="bOpen" ${S.money<R.custo||full?'disabled':''}>${full?'Sede cheia':S.money<R.custo?`Faltam ${fmt(R.custo-S.money)}`:`Abrir por ${fmt(R.custo)}`}</button>`}
+    <button class="btn" id="bOpen" ${S.money<openCost(R)||full?'disabled':''}>${full?'Sede cheia':S.money<openCost(R)?`Faltam ${fmt(openCost(R)-S.money)}`:`Abrir por ${fmt(openCost(R))}`}</button>`}
   return h+'</div>';
 }
 sheetNewCo.bind2=(a,p)=>{
@@ -832,8 +833,8 @@ sheetNewCo.bind2=(a,p)=>{
   const inp=p.querySelector('#coName');if(inp)inp.oninput=()=>a.name=inp.value;
   p.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{a.place=b.dataset.pl;renderSheet()});
   const bo=p.querySelector('#bOpen');if(bo)bo.onclick=()=>{
-    const R=RAMOS[a.sel];if(S.money<R.custo)return;const name=(a.name||'').trim()||R.nomes[0];
-    S.money-=R.custo;const c={id:S.uid++,ramo:a.sel,name,place:a.place||'Vila Esperança',lvl:1,emps:[],mkt:0};S.companies.push(c);S.viewCo=c.id;renderHUD();
+    const R=RAMOS[a.sel];const oc=openCost(R),first=!S.companies.length;if(S.money<oc)return;const name=(a.name||'').trim()||R.nomes[0];
+    S.money-=oc;const c={id:S.uid++,ramo:a.sel,name,place:a.place||'Vila Esperança',lvl:1,emps:[],mkt:0,gar:first?1:0};S.companies.push(c);S.viewCo=c.id;renderHUD();
     toast(`🎉 ${esc(name)} abriu as portas!`,'good');save();
     sheetStack=[];openSheet(sheetCo,{id:c.id});
   };
@@ -873,7 +874,8 @@ function sheetCo(a){
     for(let k=es.length;k<n;k++)h+=`<button class="slot free" data-hire="${i}">+ Contratar ${cg.n}</button>`;
     h+='</div>'});
   const lc=lvlCost(c);
-  h+=`<div class="acts">${c.lvl<5?`<button class="btn" data-a="lvl" ${S.money<lc?'disabled':''}>⬆ Subir para nível ${c.lvl+1} · ${fmt(lc)}<br><small style="font-weight:600">${R.portes[c.lvl]!==porte(c)?'Vira '+R.portes[c.lvl]+' · ':''}+25% receita, mais vagas</small></button>`:'<div class="lockc">Nível máximo</div>'}
+  if(isGar(c))h+=`<div class="card" style="border-color:#3a5a8a;background:#101a2c;font-size:14px">🏠 <b>Garagem de casa</b><br><span class="mu">Aluguel baixo, mas só cabem 2 funcionários e não dá pra decorar. Alugue um ponto comercial para crescer.</span></div>`;
+  h+=`<div class="acts">${c.lvl<5?`<button class="btn" data-a="lvl" ${S.money<lc?'disabled':''}>${isGar(c)?'🏪 Alugar ponto comercial':'⬆ Subir para nível '+(c.lvl+1)} · ${fmt(lc)}<br><small style="font-weight:600">${R.portes[c.lvl]!==porte(c)?'Vira '+R.portes[c.lvl]+' · ':''}+25% receita, mais vagas</small></button>`:'<div class="lockc">Nível máximo</div>'}
   ${c.mkt>0?`<div class="lockc">📣 Campanha de marketing ativa: ${c.mkt} dia${c.mkt>1?'s':''}</div>`:`<button class="btn sec" data-a="mkt" ${S.money<mktCost(c)?'disabled':''}>📣 Marketing por 3 dias · ${fmt(mktCost(c))}<br><small class="mu" style="font-weight:500">+30% receita e reputação</small></button>`}</div>`;
   return h+'</div>';
 }
@@ -886,7 +888,7 @@ sheetCo.bind2=(a,p)=>{
   const fb=p.querySelector('[data-a="floors"]');if(fb)fb.onclick=()=>openSheet(sheetFloors,{id:c.id});
   p.querySelectorAll('[data-hire]').forEach(b=>b.onclick=()=>openSheet(sheetHire,{id:c.id,cargo:+b.dataset.hire}));
   p.querySelectorAll('[data-emp]').forEach(b=>b.onclick=()=>openSheet(sheetEmp,{id:c.id,e:b.dataset.emp}));
-  const l=p.querySelector('[data-a="lvl"]');if(l)l.onclick=()=>{const k=lvlCost(c);if(S.money<k)return;const old=porte(c);S.money-=k;c.lvl++;gainXP(30);toast(porte(c)!==old?`🏗️ ${esc(c.name)} agora é ${porte(c)}!`:`⬆ ${esc(c.name)} subiu para o nível ${c.lvl}`,'good');save();renderSheet()};
+  const l=p.querySelector('[data-a="lvl"]');if(l)l.onclick=()=>{const k=lvlCost(c);if(S.money<k)return;const old=porte(c);S.money-=k;const wasG=isGar(c);c.lvl++;if(wasG){c.gar=0;setTimeout(()=>showInfo('🏪','Saiu da garagem!',`${esc(c.name)} agora tem um ponto comercial de verdade: mais espaço, mais vagas e liberou decoração, área externa e andares.`),300)}gainXP(30);toast(porte(c)!==old?`🏗️ ${esc(c.name)} agora é ${porte(c)}!`:`⬆ ${esc(c.name)} subiu para o nível ${c.lvl}`,'good');save();renderSheet()};
   const m=p.querySelector('[data-a="mkt"]');if(m)m.onclick=()=>{const k=mktCost(c);if(S.money<k)return;S.money-=k;c.mkt=3;S.rep=clamp(S.rep+2,0,100);toast('📣 Campanha no ar!','good');save();renderSheet()};
 };
 
@@ -1308,7 +1310,7 @@ function faceOf(dx,dy){if(Math.abs(dx)>=Math.abs(dy))return dx>=0?'fr':'bl';retu
 function seg(type,o){o.type=type;if(o.path&&o.d==null)o.d=plen(o.path)/(type==='ride'?RIDE:WALK);return o}
 function timeline(segs,ph){let acc=0;for(const s of segs){if(ph<acc+s.d)return {s,u:(ph-acc)/s.d};acc+=s.d}return {s:segs[segs.length-1],u:1}}
 function total(segs){return segs.reduce((a,s)=>a+s.d,0)}
-const DOOR_OUT=[1.6,8.55],DOOR_IN=[1.6,7.55];
+let DOOR_OUT=[1.6,8.55],DOOR_IN=[1.6,7.55];
 function svcPoint(st){return [st.pos[0],st.pos[1]+1.35]}
 function svcPath(st){const sp=svcPoint(st);if(st.pos[1]<4)return [DOOR_IN,[sp[0]+1.1,7.1],[sp[0]+1.1,sp[1]],sp];return [DOOR_IN,[sp[0],7.1],sp]}
 function rev(p){return p.slice().reverse()}
@@ -1421,7 +1423,7 @@ function lowWalls(ctx,c,list){
   if(!isOpen(c))list.push({d:1.6+7.95,f:()=>{box(ctx,1.15,7.92,.9,.08,26,'#8a8f9a');for(let z=3;z<26;z+=3)vx(ctx,1.15,2.05,8,z,z+.8,'rgba(0,0,0,.15)')}});
 }
 function plantAt(ctx,list,x,y,big){list.push({d:x+y,f:()=>{const [px,py]=P(x,y);softShadow(ctx,px+2,py,16,6,.3);box(ctx,x-.2,y-.2,.4,.4,big?18:14,'#a8693f',0,'#7a4a2a');const [qx,qy]=P(x,y,big?30:26);for(const [dx,dy,r] of (big?[[0,-10,12],[-8,-2,9],[8,-3,9],[0,4,8],[-4,-16,7]]:[[0,-6,9],[-6,0,7],[6,-1,7],[0,4,6]]))ell(ctx,qx+dx,qy+dy,r,r*.9,'#3f8a4a',EDGE);ell(ctx,qx-3,qy-8,3,2,'rgba(255,255,255,.18)')}})}
-function decor(ctx,c,list,t,hits){
+function decor0(ctx,c,list,t,hits){
   const R=RAMOS[c.ramo];const open=isOpen(c);
   const add=(d,f)=>list.push({d,f});const addO=(d,f)=>list.push({d,f,out:true});
   const pl=dLvl(c,'plantas');const spots=[[9.45,7.4,0],[.45,7.25,0],[9.5,4.4,1],[.5,4.9,1],[5.6,7.45,0],[3.5,7.45,0],[6.9,7.45,0]];
@@ -1434,9 +1436,9 @@ function decor(ctx,c,list,t,hits){
   if(fa>=3){for(const x of [3.6,6.0,8.2])addO(x+8.12,()=>{box(ctx,x-.45,8.05,.9,.18,9,'#7a4a2a');for(let i=0;i<5;i++){const [px,py]=P(x-.35+i*.18,8.14,10);ell(ctx,px,py-2,3,3,['#e35d9b','#f2c14a','#fff','#e05a3a','#7a5ac9'][i])}});
     addO(7.2+8.9,()=>{box(ctx,6.6,8.75,1.2,.3,8,'#7a4a2a');box(ctx,6.6,8.95,1.2,.08,18,'#6b4a33',8)})}
   if(fa)hits.push({w:[4.4,8.3],r:26,type:'deco',k:'fachada',cid:c.id});
-  for(const x of [-9.6,-3.2,3.4,9.6,16.2,22.6]){addO(x+13.75,()=>planterTree(ctx,x,13.75,Math.round(x*7+40)))}
-  for(const x of [-6.3,0.3,6.5,12.9,19.4]){addO(x+12.95,()=>streetLamp(ctx,x,12.95))}
-  if(EXTA<.5)addO(-.4+8.1,()=>woodPillar(ctx));
+  for(const x of [-9.6,-3.2,3.4,9.6,16.2,22.6]){list.push({street:true,out:true,d:x+13.75,f:()=>planterTree(ctx,x,13.75,Math.round(x*7+40))})}
+  for(const x of [-6.3,0.3,6.5,12.9,19.4]){list.push({street:true,out:true,d:x+12.95,f:()=>streetLamp(ctx,x,12.95)})}
+  if(EXTA<.5&&!isGar(c))addO(-.4+8.1,()=>woodPillar(ctx));
   if(c.empty||UPPER)return;
   const lu=dLvl(c,'luz');const lamps=[[3.5,3.6],[6.5,3.6],[3.5,6.2],[6.5,6.2],[5,4.9]];
   for(let i=0;i<Math.min(lu+1,5);i++){const [x,y]=lamps[i];add(x+y+.9,()=>{const top=P(x,y,WALLH+30),bot=P(x,y,lu>=4?92:lu>=2?84:100);ln(ctx,[top,bot],'#444',1);
@@ -1563,7 +1565,7 @@ function drawScene(ctx,c,t,hits){
   list.sort((a,b)=>a.d-b.d);for(const o of list)o.f();
   const n=night();
   if(n>0){ctx.save();ctx.fillStyle=`rgba(12,20,52,${.45*n})`;ctx.fillRect(-3000,-3000,6000,6000);
-    if(!open&&!c.empty)poly(ctx,[P(0,0),P(RW,0),P(RW,RD),P(0,RD)],`rgba(5,8,20,${.35*n})`);
+    if(!open&&!c.empty)roomShade(ctx,c,n);
     ctx.globalCompositeOperation='lighter';
     for(const x of [0.5,6.8,13.2]){const [px,py]=P(x,12.5);const g=ctx.createRadialGradient(px-11,py-70,2,px-11,py-30,80);g.addColorStop(0,`rgba(255,220,140,${.35*n})`);g.addColorStop(1,'rgba(255,220,140,0)');ctx.fillStyle=g;ctx.fillRect(px-100,py-150,200,200)}
     if(open){const [rx,ry]=P(5,4,40);const g=ctx.createRadialGradient(rx,ry,10,rx,ry,260);g.addColorStop(0,`rgba(255,214,150,${(.22+.04*dLvl(c,'luz'))*n})`);g.addColorStop(1,'rgba(255,214,150,0)');ctx.fillStyle=g;ctx.fillRect(rx-280,ry-220,560,460)}
@@ -1590,7 +1592,7 @@ function camFor(cv){if(!cams.main)cams.main={cx:24,cy:118,z:null};return cams.ma
 function fitZoom(cv){return cv.clientWidth/660}
 let lastLive=0;
 const EMPTYCO={id:0,ramo:'alim',name:'ALUGA-SE',lvl:1,emps:[],mkt:0,empty:true};
-function viewCompany(){return findCo(S.viewCo)||S.companies[0]||EMPTYCO}
+function viewCompany(){const c=findCo(S.viewCo)||S.companies[0]||EMPTYCO;if(c===EMPTYCO)EMPTYCO.gar=S.companies.length?0:1;else if(c.gar===undefined)c.gar=(S.companies[0]===c&&c.lvl===1&&!((c.floors||1)>1))?1:0;return c}
 function drawLive(now){
   if(now-lastLive<33)return;lastLive=now;
   const t=now/1000;const cv=$('gameCv');if(!cv||!cv.offsetParent)return;
@@ -1814,7 +1816,7 @@ function carCustSegs(sx,st,c){
 function agentState(segs,ph){const {s,u}=timeline(segs,ph);let pos=null,face='fl',dx=0,dy=1;if(s.path){const a=along(s.path,u);pos=[a.x,a.y];face=faceOf(a.dx,a.dy);dx=a.dx;dy=a.dy}return {s,u,pos,face,dx,dy}}
 
 /* ---------- Paredes baixas com porta lateral ---------- */
-function lowWalls(ctx,c,list){
+function lowWalls0(ctx,c,list){
   const st=ROOMST[c.ramo];let W=st.wall;if(dLvl(c,'parede')===4)W='#24314f';const open=isOpen(c);
   list.push({d:RW+RD-.2,f:()=>{box(ctx,2.05,7.9,RW-2.05,.12,12,shade(W,.92));box(ctx,0,7.9,1.15,.12,12,shade(W,.92))}});
   list.push({d:RW+3,f:()=>{box(ctx,RW-.12,0,.12,6.2,12,shade(W,.8));box(ctx,RW-.12,7.0,.12,1.0,12,shade(W,.8));box(ctx,RW-.12,6.15,.12,.06,30,'#5b4a3a');box(ctx,RW-.12,7.0,.12,.06,30,'#5b4a3a');if(!open)box(ctx,RW-.1,6.2,.08,.8,28,'#7a5a3a')}});
@@ -1902,11 +1904,11 @@ function drawScene(ctx,c,t,hits){
   list.sort((a,b)=>a.d-b.d);for(const o of list)o.f();
   const n=night();
   if(n>0){ctx.save();ctx.fillStyle=`rgba(12,20,52,${.45*n})`;ctx.fillRect(-3000,-3000,6000,6000);
-    if(!open&&!c.empty)poly(ctx,[P(0,0),P(RW,0),P(RW,RD),P(0,RD)],`rgba(5,8,20,${.35*n})`);
+    if(!open&&!c.empty)roomShade(ctx,c,n);
     ctx.globalCompositeOperation='lighter';
     const glow=(px,py,r,a,col)=>{const g=ctx.createRadialGradient(px,py,2,px,py,r);g.addColorStop(0,`rgba(${col},${a*n})`);g.addColorStop(1,`rgba(${col},0)`);ctx.fillStyle=g;ctx.fillRect(px-r,py-r,r*2,r*2)};
     for(const x of [0.5,6.8,13.2]){const [px,py]=P(x,12.5);glow(px-11,py-50,80,.35,'255,220,140')}
-    if(open){const [rx,ry]=P(5,4,40);glow(rx,ry,260,.22+.04*dLvl(c,'luz'),'255,214,150')}
+    if(open){const [rx,ry]=isGar(c)?P(7.7,4.4,30):P(5,4,40);glow(rx,ry,isGar(c)?150:260,.22+.04*dLvl(c,'luz'),'255,214,150')}
     if(dLvl(c,'fachada')>=2){const [x,y]=P(4.4,8.4);glow(x,y-51,40,.4,'255,120,160')}
     if(eLvl(c,'beco')>=3){const [x,y]=P(11.2,2,0);glow(x,y,90,.3,'255,230,170')}
     if(eLvl(c,'estac')>=3){const [x,y]=P(14.9,7.3);glow(x-9,y-40,90,.3,'255,220,140')}
@@ -2149,7 +2151,7 @@ function upperObjects(ctx,c,f,list,t,hits,over){
 
 /* ---------- Prédio visto de fora ---------- */
 function shellWall(c){const env=envOf(c);const base={alim:'#f1e3c8',moda:'#f2d8df',tech:'#c97a5a',logi:'#a9b2bf'}[c.ramo];return dLvl(c,'parede')===4?'#2c3a5a':dLvl(c,'parede')>=2?shade(base,1.05):base}
-function drawShell(ctx,c,a,t){
+function drawShell0(ctx,c,a,t){
   if(a<=.01)return;ctx.save();ctx.globalAlpha=a;
   const F=c.floors||1,H=WALLH*F;const W=shellWall(c);const R=RAMOS[c.ramo];const open=isOpen(c);const n=night();
   // faces
@@ -2187,7 +2189,7 @@ function drawShell(ctx,c,a,t){
 /* ---------- Cena dinâmica ---------- */
 function drawDynamic(ctx,c,t,hits,ea){
   const sc=buildScene(c);const inL=[],outL=[];const over=[];const open=isOpen(c);const up=UPPER;
-  const inside=(x,y)=>x>0&&x<RW&&y>0&&y<RD;
+  const inside=(x,y)=>isGar(c)?(x>GX0&&x<GX1&&y>GY0&&y<GY1):(x>0&&x<RW&&y>0&&y<RD);
   const addIn=(d,f)=>inL.push({d,f}),addOut=(d,f)=>outL.push({d,f});
   if(!up){for(const st of sc.stations)addIn(st.pos[0]+st.pos[1]+.6,()=>drawStation(ctx,st,c,t,hits,over));if((c.floors||1)>1)stairs(ctx,inL,false)}
   else upperObjects(ctx,c,up,inL,t,hits,over);
@@ -2247,18 +2249,18 @@ function drawDynamic(ctx,c,t,hits,ea){
       addOut(sx+LOTY,()=>car(ctx,sx,LOTY,'-y',tcol,ty,t));
       if(s.type==='walk'||s.type==='wait'){let pos=a.pos,face=a.face;if(s.type==='wait'){pos=svcPoint(st);face='br';st.busy=true}const L=npcLook(500+cyc*7+j);
         put(pos[0],pos[1],pos[0]+pos[1],()=>{const [x,y]=P(pos[0],pos[1]);const hp=person(ctx,x,y,L,{face,pose:s.type==='walk'?'walk':'stand',act:s.carry?'carry':s.type==='walk'?'walk':'idle',t:t+j,carry:s.carry||null});if(s.type==='wait')over.push({head:hp,bubble:'🚗'})})}}}
-  if(!c.empty&&ea<.99)inL.push({d:-1,f:()=>{const [cx,cy]=P(0,6.8,72);ell(ctx,cx,cy,7,8,'#fff',EDGE);ctx.save();ctx.translate(cx,cy);const hr=hourNow();ln(ctx,[[0,0],[Math.sin(hr/12*Math.PI*2)*3.5,-Math.cos(hr/12*Math.PI*2)*4.5]],'#222',1.4);ln(ctx,[[0,0],[Math.sin(hr*Math.PI*2)*4.5,-Math.cos(hr*Math.PI*2)*6]],'#555',1);ctx.restore()}});
+  if(!c.empty&&!isGar(c)&&ea<.99)inL.push({d:-1,f:()=>{const [cx,cy]=P(0,6.8,72);ell(ctx,cx,cy,7,8,'#fff',EDGE);ctx.save();ctx.translate(cx,cy);const hr=hourNow();ln(ctx,[[0,0],[Math.sin(hr/12*Math.PI*2)*3.5,-Math.cos(hr/12*Math.PI*2)*4.5]],'#222',1.4);ln(ctx,[[0,0],[Math.sin(hr*Math.PI*2)*4.5,-Math.cos(hr*Math.PI*2)*6]],'#555',1);ctx.restore()}});
   inL.sort((a,b)=>a.d-b.d);outL.sort((a,b)=>a.d-b.d);
   if(ea<.99)for(const o of inL)o.f();
   drawShell(ctx,c,c.empty?0:ea,t);
   for(const o of outL)o.f();
   const n=night();
   if(n>0){ctx.save();ctx.fillStyle=`rgba(12,20,52,${.45*n})`;ctx.fillRect(-4000,-4000,8000,8000);
-    if(!open&&!c.empty&&ea<.5)poly(ctx,[P(0,0),P(RW,0),P(RW,RD),P(0,RD)],`rgba(5,8,20,${.35*n})`);
+    if(!open&&!c.empty&&ea<.5)roomShade(ctx,c,n);
     ctx.globalCompositeOperation='lighter';
     const glow=(px,py,r,a,col)=>{const g=ctx.createRadialGradient(px,py,2,px,py,r);g.addColorStop(0,`rgba(${col},${a*n})`);g.addColorStop(1,`rgba(${col},0)`);ctx.fillStyle=g;ctx.fillRect(px-r,py-r,r*2,r*2)};
     for(const x of [0.5,6.8,13.2]){const [px,py]=P(x,12.5);glow(px-11,py-50,80,.35,'255,220,140')}
-    if(open&&ea<.6){const [rx,ry]=P(5,4,40);glow(rx,ry,260,.22+.04*dLvl(c,'luz'),'255,214,150')}
+    if(open&&ea<.6){const [rx,ry]=isGar(c)?P(7.7,4.4,30):P(5,4,40);glow(rx,ry,isGar(c)?150:260,.22+.04*dLvl(c,'luz'),'255,214,150')}
     if(open&&ea>.3){const [fx,fy]=P(6,RD,40);glow(fx,fy+20,200,.35,'255,210,140');const [sx2,sy2]=P(6,RD,90);glow(sx2,sy2,120,.35,'255,255,255')}
     if(dLvl(c,'fachada')>=2){const [x,y]=P(4.4,8.4);glow(x,y-51,40,.4,'255,120,160')}
     if(eLvl(c,'beco')>=3){const [x,y]=P(11.2,2,0);glow(x,y,90,.3,'255,230,170')}
@@ -2299,7 +2301,7 @@ function drawLive0(now){
   if(cam.z!==prevZ){prevZ=cam.z;zoomAt=now}
   const ea=c.empty?0:extAlpha(cv);EXTA=ea;UPPER=(!c.empty&&ea<.99)?VF:0;
   const [s1,s2]=skyCol();const n=night();
-  const key=[c.id,c.lvl,c.ramo,c.name,c.empty?1:0,JSON.stringify(c.deco||{}),JSON.stringify(c.ext||{}),c.floors||1,UPPER,envOf(c),s1,n>.5?1:0,slots(c,3),w,h,dpr].join('|');
+  const key=[c.id,c.lvl,c.ramo,c.name,c.empty?1:0,isGar(c)?1:0,JSON.stringify(c.deco||{}),JSON.stringify(c.ext||{}),c.floors||1,UPPER,envOf(c),s1,n>.5?1:0,slots(c,3),w,h,dpr].join('|');
   const src=m=>{const s=m.z*dpr;return [(cam.cx-w/2/cam.z-m.cx)*s+m.W/2,(cam.cy-h/2/cam.z-m.cy)*s+m.H/2,w/cam.z*s,h/cam.z*s]};
   let need=!sMeta||sMeta.key!==key;
   if(!need){const r=src(sMeta);const inside=r[0]>=0&&r[1]>=0&&r[0]+r[2]<=sMeta.W+1&&r[1]+r[3]<=sMeta.H+1;if(!inside||(sMeta.z!==cam.z&&now-zoomAt>220))need=true}
@@ -2563,7 +2565,7 @@ function drawStatic(ctx,c){
   const lit=night()>.5;const resid=env==='vila'||env==='jardim'||env==='lago'||env==='serra';
   backdrop(ctx,c,env);
   drawExterior(ctx,c);
-  drawFloor(ctx,c);drawWalls(ctx,c,0);
+  if(isGar(c))drawGarageStatic(ctx,c);else{drawFloor(ctx,c);drawWalls(ctx,c,0)}
   if(E.far!=='sea'&&E.far!=='lake'){
     for(let i=0;i<12;i++){const x=-12+i*3+rr2(i+3)*1.2,y=14.3+rr2(i+8)*.8;tree(ctx,x,y,.8+rr2(i)*.3,'bush',i)}
     for(let i=0;i<12;i++){const x=-14+i*3.6+rr2(i+31)*1.5,y=22+rr2(i+32)*6;tree(ctx,x,y,1+rr2(i+33)*.35,i%5===3?'blossom':i%3===1?'bush':'round',i+60)}
@@ -2632,6 +2634,125 @@ function backdrop(ctx,c,env){
   if(env==='vila')items.push({d:14+-4,f:()=>church(ctx)});
   items.sort((a,b)=>a.d-b.d).forEach(o=>o.f());
 }
+
+/* ================== v0.9: primeira empresa na garagem de casa ================== */
+const GX0=5.4,GX1=10,GY0=1.2,GY1=7.7,GH=80;
+function isGar(c){return !!(c&&c.gar&&(c.lvl||1)<=1&&!((c.floors||1)>1))}
+const SPOS_G=[[[7.0,2.55],[8.8,2.55]],[[7.0,5.15],[8.8,5.15]],[[9.0,4.0]],[[9.0,1.9]]];
+function openCost(R){return S.companies.length?R.custo:Math.round(R.custo*.6/50)*50}
+function buildScene(c){
+  const gar=isGar(c);DOOR_OUT=gar?[7.35,8.55]:[1.6,8.55];DOOR_IN=gar?[7.35,7.3]:[1.6,7.55];
+  const SP=gar?SPOS_G:SPOS;const K=ROOMK[c.ramo];const stations=[],walkers=[];
+  if(!c.empty)for(let i=0;i<4;i++){const n=slots(c,i);const es=c.emps.filter(e=>e.cargo===i);
+    for(let k=0;k<n;k++){const e=es[k]||null;const key=i+'_'+k;
+      if(K[i]==='walker')walkers.push({cargo:i,e,k:walkers.length,key,van:c.ramo==='logi'&&i===2});
+      else stations.push({cargo:i,kind:K[i],pos:SP[i][Math.min(k,SP[i].length-1)],e,idx:stations.length,key,busy:false})}}
+  let pickup=null;
+  if(c.ramo==='alim'||c.ramo==='moda')pickup=stations.find(s=>s.kind==='counter'&&s.e)||stations.find(s=>(s.kind==='stove'||s.kind==='sew')&&s.e);
+  if(c.ramo==='logi')pickup=stations.find(s=>s.cargo===1&&s.e);
+  const svc=c.ramo==='tech'?stations.filter(s=>s.cargo===0&&s.e):stations.filter(s=>s.kind==='counter'&&s.e);
+  return {stations,walkers,pickup,svc};
+}
+function custSegs(st,c){
+  const inP=[DOOR_OUT,...svcPath(st)];const item=c.ramo==='alim'?'paper':c.ramo==='moda'?'clothes':'phone';const dx=DOOR_OUT[0];
+  return [seg('walk',{path:[[-7,8.55],[dx-.6,8.55],DOOR_OUT]}),seg('walk',{path:inP}),seg('wait',{d:3.6}),seg('walk',{path:rev(inP),carry:item}),seg('walk',{path:[DOOR_OUT,[dx,9.08],[17,9.08]],carry:item})];
+}
+function rent(c){return (isGar(c)?.4:1)*RAMOS[c.ramo].aluguel*1.5*(1+.5*(c.lvl-1))*(1+.6*((c.floors||1)-1))}
+function roomShade(ctx,c,n){if(isGar(c))poly(ctx,[P(GX0,GY0),P(GX1,GY0),P(GX1,GY1),P(GX0,GY1)],`rgba(5,8,20,${.35*n})`);else poly(ctx,[P(0,0),P(RW,0),P(RW,RD),P(0,RD)],`rgba(5,8,20,${.35*n})`)}
+
+/* ---------- Garagem: parte fixa (casa da família, piso, paredes) ---------- */
+function wallText(ctx,x0,y,z,txt,col,maxw,fs0){ctx.save();const p0=P(x0,y,z);ctx.translate(p0[0],p0[1]);ctx.transform(.894,.447,0,1,0,0);ctx.fillStyle=col;let fs=fs0||13;ctx.font=`900 ${fs}px system-ui`;while(ctx.measureText(txt).width>maxw&&fs>7){fs--;ctx.font=`900 ${fs}px system-ui`}ctx.fillText(txt,0,0);ctx.restore()}
+function drawGarageStatic(ctx,c){
+  const lit=night()>.5;const empty=!!c.empty;
+  // casa da família ao lado
+  house(ctx,.45,1.7,4.3,3.7,46,'','',3,lit);
+  // entrada de carro (rampa) entre a garagem e a calçada
+  flat(ctx,GX0,GY1,GX1-GX0,8-GY1,0,'#c9c3b7');for(let x=GX0+1.15;x<GX1;x+=1.15)ln(ctx,[P(x,GY1),P(x,8)],'rgba(90,80,65,.25)',1);
+  poly(ctx,[P(GX0,7.96),P(GX1,7.96),P(GX1,8.04),P(GX0,8.04)],'rgba(0,0,0,.08)');
+  // base
+  poly(ctx,[P(GX1,GY0),P(GX1,GY1),P(GX1,GY1,-7),P(GX1,GY0,-7)],'#6e665c');poly(ctx,[P(GX0,GY1),P(GX1,GY1),P(GX1,GY1,-7),P(GX0,GY1,-7)],'#8a8174');
+  // piso de cimento queimado
+  flat(ctx,GX0,GY0,GX1-GX0,GY1-GY0,0,'#b9b4aa');
+  for(let i=0;i<14;i++){const x=GX0+.3+rr2(i+3)*(GX1-GX0-.6),y=GY0+.3+rr2(i+9)*(GY1-GY0-.6);const [px,py]=P(x,y);const g=ctx.createRadialGradient(px,py,0,px,py,26);g.addColorStop(0,i%3?'rgba(255,255,255,.10)':'rgba(70,60,50,.10)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.save();ctx.translate(px,py);ctx.scale(1,.5);ctx.fillRect(-26,-26,52,52);ctx.restore()}
+  ctx.strokeStyle='rgba(80,70,60,.22)';ctx.lineWidth=1;ctx.beginPath();for(let x=GX0+1.53;x<GX1;x+=1.53){const a=P(x,GY0),b=P(x,GY1);ctx.moveTo(...a);ctx.lineTo(...b)}for(let y=GY0+1.62;y<GY1;y+=1.62){const a=P(GX0,y),b=P(GX1,y);ctx.moveTo(...a);ctx.lineTo(...b)}ctx.stroke();
+  {const [ox,oy]=P(8.6,6.4);ctx.fillStyle='rgba(40,35,30,.22)';ctx.beginPath();ctx.ellipse(ox,oy,16,6,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(ox+12,oy+3,6,2.4,0,0,7);ctx.fill()}
+  ln(ctx,[P(6.1,3.9),P(6.6,4.3),P(6.5,4.9),P(7.0,5.4)],'rgba(60,50,40,.3)',1);
+  poly(ctx,[P(GX0,GY0),P(GX1,GY0),P(GX1,GY0+.6),P(GX0,GY0+.6)],'rgba(10,8,20,.12)');poly(ctx,[P(GX0,GY0),P(GX0+.6,GY0),P(GX0+.6,GY1),P(GX0,GY1)],'rgba(10,8,20,.1)');
+  // paredes (fundo e esquerda)
+  const W='#ece3d2';vx(ctx,GX0,GX1,GY0,0,GH,W);vy(ctx,GY0,GY1,GX0,0,GH,shade(W,.86));
+  vx(ctx,GX0,GX1,GY0,0,30,'#9aa6ad');vy(ctx,GY0,GY1,GX0,0,30,'#86929a');vx(ctx,GX0,GX1,GY0,29,31,'#7f8a92');vy(ctx,GY0,GY1,GX0,29,31,'#6f7a82');
+  const gw=ctx.createLinearGradient(0,P(GX0,GY0,GH)[1],0,P(GX0,GY0,0)[1]);gw.addColorStop(0,'rgba(255,255,255,.08)');gw.addColorStop(1,'rgba(0,0,0,.1)');vx(ctx,GX0,GX1,GY0,0,GH,gw);vy(ctx,GY0,GY1,GX0,0,GH,gw);
+  // marcas e infiltração leve
+  for(let i=0;i<6;i++){const x=GX0+.3+rr2(i+50)*4;vx(ctx,x,x+.25,GY0,GH-14-rr2(i)*20,GH-4,'rgba(120,100,70,.06)')}
+  // janela basculante alta
+  vx(ctx,GX0+.45,GX0+1.35,GY0,52,70,'#ffffff');vx(ctx,GX0+.5,GX0+1.3,GY0,54,68,lit?'#ffd98a':'#9cc4e2');for(let z=57;z<68;z+=4)vx(ctx,GX0+.5,GX0+1.3,GY0,z,z+.8,'rgba(255,255,255,.7)');
+  // lâmpada fluorescente
+  vx(ctx,GX0+1.9,GX0+3.6,GY0,GH-10,GH-7,'#f7f7f2');{const p=P(GX0+2.75,GY0,GH-8);const g=ctx.createRadialGradient(p[0],p[1],2,p[0],p[1],70);g.addColorStop(0,'rgba(240,250,255,.35)');g.addColorStop(1,'rgba(240,250,255,0)');ctx.fillStyle=g;ctx.fillRect(p[0]-70,p[1]-70,140,140)}
+  // faixa pintada com o nome
+  const R=RAMOS[c.ramo];const nm=empty?'ALUGA-SE':c.name;
+  vx(ctx,GX0+1.7,GX1-.25,GY0,48,64,'#22252e');vx(ctx,GX0+1.76,GX1-.31,GY0,49.5,62.5,empty?'#e8b54d':R.cor);
+  wallText(ctx,GX0+1.95,GY0,58,nm,empty?'#1d1406':'#fff',(GX1-GX0-2.3)*35,12);
+  // quadro de ferramentas na parede esquerda
+  vy(ctx,GY0+2.1,GY0+3.6,GX0,36,58,'#c79a62');for(let i=0;i<5;i++){const y=GY0+2.25+i*.28;vy(ctx,y,y+.06,GX0,40,54,['#3a3d46','#c8322a','#3a3d46','#e8b54d','#3a3d46'][i])}
+  // bicicleta pendurada
+  {const a=P(GX0,GY0+4.6,58),b=P(GX0,GY0+5.7,58);ctx.strokeStyle='#2b2d33';ctx.lineWidth=1.6;for(const q of [a,b]){ctx.beginPath();ctx.ellipse(q[0],q[1]+6,8,10,-.45,0,7);ctx.stroke()}ln(ctx,[[a[0],a[1]+6],[(a[0]+b[0])/2,(a[1]+b[1])/2-2],[b[0],b[1]+6]],'#c8322a',2);ln(ctx,[[(a[0]+b[0])/2,(a[1]+b[1])/2-2],[(a[0]+b[0])/2-2,(a[1]+b[1])/2-10]],'#2b2d33',1.6)}
+  // topo das paredes
+  poly(ctx,[P(GX0,GY0,GH),P(GX1,GY0,GH),P(GX1,GY0-.22,GH),P(GX0-.22,GY0-.22,GH),P(GX0-.22,GY1,GH),P(GX0,GY1,GH)],'#5a5450');
+  // estante de metal com caixas no fundo direito
+  const sx=GX1-1.15,sy=GY0+.1;for(const z of [0,18,36,54])box(ctx,sx,sy,1.05,.45,2,'#8a9098',z);for(const [x,y] of [[sx,sy],[sx+1,sy],[sx,sy+.4],[sx+1,sy+.4]])box(ctx,x,y,.05,.05,58,'#6a7078');
+  for(let k=0;k<3;k++)for(let j=0;j<2;j++){const z=2+k*18;box(ctx,sx+.06+j*.5,sy+.06,.42,.34,11+rr2(k*3+j)*4,['#c99a5e','#b8874f','#d4aa70'][(k+j)%3],z)}
+}
+
+/* ---------- Garagem: objetos (ordenados com as pessoas) ---------- */
+function garageDecor(ctx,c,list,t,hits){
+  const open=isOpen(c);const add=(d,f)=>list.push({d,f});const addO=(d,f)=>list.push({d,f,out:true});const R=RAMOS[c.ramo];
+  if(!c.empty){
+    if(c.ramo==='alim')add(GX1-.6+GY0+1.4,()=>{box(ctx,GX1-.75,GY0+.75,.62,.6,50,'#f2f2ee',0,'#ffffff');vy(ctx,GY0+.8,GY0+1.3,GX1-.13,30,31,'#9aa0a8');ln(ctx,[P(GX1-.13,GY0+1.25,36),P(GX1-.13,GY0+1.25,46)],'#9aa0a8',1.6)});
+    if(c.ramo==='moda')add(GX1-.6+GY0+1.6,()=>{box(ctx,GX1-.7,GY0+.8,.06,.06,46,'#3a3d46');box(ctx,GX1-.7,GY0+1.9,.06,.06,46,'#3a3d46');box(ctx,GX1-.7,GY0+.8,.06,1.16,2,'#3a3d46',44);for(let i=0;i<5;i++){const y=GY0+.9+i*.21;box(ctx,GX1-.78,y,.22,.12,26,['#e35d9b','#5aa9ff','#f2c14a','#45d38a','#fff'][i],16)}});
+    if(c.ramo==='tech')add(GX1-.6+GY0+1.4,()=>{for(let i=0;i<3;i++)box(ctx,GX1-.8,GY0+.8,.6,.5,10,['#c99a5e','#b8874f','#d4aa70'][i],i*10);box(ctx,GX1-.7,GY0+.88,.36,.3,6,'#2b2d33',30)});
+    add(GX0+.4+GY1-1.2,()=>{box(ctx,GX0+.12,GY1-1.55,.6,.5,14,'#c99a5e');box(ctx,GX0+.16,GY1-1.5,.5,.4,12,'#b8874f',14);box(ctx,GX0+.12,GY1-.95,.45,.45,10,'#d4aa70')});
+    add(GX0+.5+GY0+4.2,()=>{const [px,py]=P(GX0+.45,GY0+4.25);ln(ctx,[[px,py],[px,py-30]],'#3a3d46',2);ell(ctx,px,py-34,9,9,'#d9dde5','#3a3d46');ell(ctx,px,py-34,2,2,'#3a3d46');ell(ctx,px,py,6,2.5,'#3a3d46')});
+  }
+  // vaso na entrada e placa de horário
+  addO(GX0-.1+GY1+.6,()=>{box(ctx,GX0-.45,GY1+.25,.4,.4,10,'#b4653f',0,'#c9784d');const [px,py]=P(GX0-.25,GY1+.45,10);for(const [dx,dy,r,cl] of [[0,-8,9,'#3d8a3c'],[-6,-4,6,'#4a9a40'],[6,-5,6,'#35803a'],[0,-15,6,'#5aa84f']])ell(ctx,px+dx,py+dy,r,r*.85,cl)});
+  if(!c.empty){addO(GX1-.4+8.35,()=>{const [x,y]=P(GX1-.45,8.35);softShadow(ctx,x,y,12,4,.3);poly(ctx,[[x-8,y],[x-4,y-24],[x+4,y-24],[x+8,y]],'#2a2a2e',EDGE);rrect(ctx,x-6,y-22,12,12,2,open?'#2f9a5a':'#8a2f3a');ctx.fillStyle='#fff';ctx.font='900 5px system-ui';ctx.textAlign='center';ctx.fillText(open?'ABERTO':'FECHADO',x,y-14.5);ctx.textAlign='left'});hits.push({w:[GX1-.45,8.2],r:18,type:'hours',cid:c.id})}
+  else addO(GX0+.6+8.3,()=>{const [x,y]=P(GX0+.7,8.3);softShadow(ctx,x,y,14,5,.3);ln(ctx,[[x,y],[x,y-34]],'#6a4a2c',2.4);rrect(ctx,x-15,y-48,30,16,2,'#e8b54d','#1d1406');ctx.fillStyle='#1d1406';ctx.font='900 6.5px system-ui';ctx.textAlign='center';ctx.fillText('ALUGA-SE',x,y-38);ctx.textAlign='left'});
+}
+function garageLowWalls(ctx,c,list){
+  const open=isOpen(c);const W='#e3d9c6';
+  list.push({d:GX1+GY1-.2,f:()=>{box(ctx,GX0,GY1-.14,.32,.14,14,shade(W,.92));box(ctx,GX1-.32,GY1-.14,.32,.14,14,shade(W,.92));flat(ctx,GX0+.32,GY1-.1,GX1-GX0-.64,.1,0,'#8a8f98');
+    if(!open){box(ctx,GX0+.32,GY1-.1,GX1-GX0-.64,.08,26,'#a9aeb6');for(let z=3;z<26;z+=3)vx(ctx,GX0+.32,GX1-.32,GY1-.02,z,z+.8,'rgba(0,0,0,.18)');if(c.empty){vx(ctx,GX0+1.5,GX1-1.5,GY1-.02,9,21,'#e8b54d');wallText(ctx,GX0+1.62,GY1-.02,17.5,'ALUGA-SE','#1d1406',(GX1-GX0-3.2)*35,7)}}}});
+  list.push({d:GX1+3.2,f:()=>{box(ctx,GX1-.12,GY0,.12,6.2-GY0,12,shade(W,.8));box(ctx,GX1-.12,7.0,.12,GY1-7.0,12,shade(W,.8));box(ctx,GX1-.12,6.15,.12,.06,30,'#5b4a3a');box(ctx,GX1-.12,7.0,.12,.06,30,'#5b4a3a');if(!open)box(ctx,GX1-.1,6.2,.08,.8,28,'#7a5a3a')}});
+}
+
+/* ---------- Garagem vista de fora (zoom afastado) ---------- */
+function garageShell(ctx,c,a,t){
+  if(a<=.01)return;ctx.save();ctx.globalAlpha=a;const open=isOpen(c);const n=night();const R=RAMOS[c.ramo];const W='#efe6d6';
+  vy(ctx,GY0,GY1,GX1,0,GH,shade(W,.82));vx(ctx,GX0,GX1,GY1,0,GH,W);
+  vx(ctx,GX0,GX1,GY1,0,6,'#9a9184');vy(ctx,GY0,GY1,GX1,0,6,'#8a8174');
+  // portão de enrolar
+  const d0=GX0+.35,d1=GX1-.35,top=58;vx(ctx,d0-.06,d1+.06,GY1,0,top+3,'#5a5e66');
+  if(open&&!c.empty){vx(ctx,d0,d1,GY1,0,top-10,n>.3?'#ffe2a8':'#6a6255');const g=ctx.createLinearGradient(0,P(d0,GY1,top-10)[1],0,P(d0,GY1,0)[1]);g.addColorStop(0,'rgba(0,0,0,.35)');g.addColorStop(1,'rgba(0,0,0,0)');vx(ctx,d0,d1,GY1,0,top-10,g);vx(ctx,d0,d1,GY1,top-10,top,'#b4b9c1');for(let z=top-9;z<top;z+=2.5)vx(ctx,d0,d1,GY1,z,z+.6,'rgba(0,0,0,.2)')}
+  else{vx(ctx,d0,d1,GY1,0,top,'#b4b9c1');for(let z=2;z<top;z+=3)vx(ctx,d0,d1,GY1,z,z+.8,'rgba(0,0,0,.16)');vx(ctx,d0+1.6,d1-1.6,GY1,4,7,'#3a3d46')}
+  // placa
+  vx(ctx,GX0+.6,GX1-.6,GY1,top+5,top+18,'#22252e');vx(ctx,GX0+.66,GX1-.66,GY1,top+6.2,top+16.8,c.empty?'#e8b54d':R.cor);
+  wallText(ctx,GX0+.85,GY1,top+14.5,c.empty?'ALUGA-SE':c.name,c.empty?'#1d1406':'#fff',(GX1-GX0-1.5)*35,10);
+  // janela lateral
+  vy(ctx,GY0+1,GY0+2.4,GX1,40,62,'#ffffff');vy(ctx,GY0+1.06,GY0+2.34,GX1,42,60,n>.3&&open?'#ffd98a':'#8fb8d8');
+  // laje com platibanda e telhado de fibrocimento
+  poly(ctx,[P(GX0,GY0,GH),P(GX1,GY0,GH),P(GX1,GY1,GH),P(GX0,GY1,GH)],'#8d9096');
+  for(let x=GX0+.25;x<GX1;x+=.25)ln(ctx,[P(x,GY0,GH),P(x,GY1,GH)],'rgba(0,0,0,.08)',1);
+  box(ctx,GX0,GY1-.18,GX1-GX0,.18,8,shade(W,.92),GH);box(ctx,GX1-.18,GY0,.18,GY1-GY0,8,shade(W,.8),GH);
+  box(ctx,GX0+.6,GY0+.5,.8,.8,22,'#2f6bd8',GH,'#3d7be8');
+  ctx.restore();
+}
+
+/* ---------- Ganchos nas funções originais ---------- */
+function decor(ctx,c,list,t,hits){if(!isGar(c))return decor0(ctx,c,list,t,hits);const tmp=[];decor0(ctx,c,tmp,t,[]);for(const o of tmp)if(o.street)list.push(o);garageDecor(ctx,c,list,t,hits)}
+function lowWalls(ctx,c,list){if(isGar(c))return garageLowWalls(ctx,c,list);return lowWalls0(ctx,c,list)}
+function drawShell(ctx,c,a,t){if(isGar(c))return garageShell(ctx,c,c.empty?Math.max(a,0):a,t);return drawShell0(ctx,c,a,t)}
+function sheetDecor(a){const c=findCo(a.id)||viewCompany();if(isGar(c))return head('🎨 Decorar')+`<div class="sh-body"><div class="card" style="text-align:center;padding:22px"><div style="font-size:44px">🏠</div><b style="font-size:17px">Você ainda está na garagem</b><p class="mu" style="font-size:14px;margin:8px 0 0">Garagem de casa não dá pra reformar nem mexer na área externa. Alugue um <b>ponto comercial</b> (botão na tela da empresa) para liberar decoração, estacionamento e andares.</p></div></div>`;return sheetDecor0(a)}
+sheetDecor.bind2=(a,p)=>{const c=findCo(a.id)||viewCompany();if(!isGar(c)&&sheetDecor0.bind2)sheetDecor0.bind2(a,p)};
 
 /* ================== MÚSICA (renderizada em áudio, toca no primeiro toque) ================== */
 const Music={el:null,on:(()=>{try{return localStorage.getItem('ceo_music')!=='0'}catch(e){return true}})(),want:false,fade:null,
@@ -2779,7 +2900,7 @@ function hoursCard(c){
 function extCost(c,k){return Math.round(RAMOS[c.ramo].custo*.5*Math.pow(1.9,eLvl(c,k))/50)*50}
 function extBonus(c){return eLvl(c,'estac')*6+eLvl(c,'calcada')*3}
 function decoRow(c,d,lv,max,cost,attr,focus){return `<div class="deco ${focus?'on':''}" ${focus?'id="decoFocus"':''}><div class="e">${d.e}</div><div class="m"><b>${d.n}</b><small>${d.names[lv]}${lv<max?` → <span class="gold">${d.names[lv+1]}</span>`:''}</small>${d.d?`<small style="display:block;color:#9fd8b4">${d.d}</small>`:''}<div class="pips sm">${Array.from({length:max},(_,j)=>`<i class="${j<lv?'f':''}"></i>`).join('')}</div></div>${lv<max?`<button class="btn sm" ${attr} ${S.money<cost?'disabled':''}>${fmt(cost)}</button>`:'<span class="gold" style="font-weight:800;font-size:13px">MÁX</span>'}</div>`}
-function sheetDecor(a){
+function sheetDecor0(a){
   const c=findCo(a.id);if(!c)return head('Decorar');const tot=decoTotal(c);
   let h=head('🎨 Decorar · '+esc(c.name))+`<div class="sh-body"><div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><small class="mu">Bônus do ambiente</small><div style="font-size:20px;font-weight:900">${tot+eLvl(c,'beco')+eLvl(c,'estac')+eLvl(c,'calcada')} melhorias</div></div><div style="text-align:right"><small class="mu">Receita extra</small><div class="green" style="font-size:20px;font-weight:900">+${tot*4+extBonus(c)}%</div></div></div>`;
   h+=`<div class="seg"><button class="${a.ext?'':'on'}" data-tab="in">🏠 Interior</button><button class="${a.ext?'on':''}" data-tab="ext">🌳 Área externa</button></div>`;
@@ -2789,7 +2910,7 @@ function sheetDecor(a){
     for(const d of EXTER){const lv=eLvl(c,d.k);h+=decoRow(c,d,lv,d.names.length-1,extCost(c,d.k),`data-ek="${d.k}"`,a.focus===d.k)}}
   return h+'</div>';
 }
-sheetDecor.bind2=(a,p)=>{
+sheetDecor0.bind2=(a,p)=>{
   const c=findCo(a.id);if(!c)return;
   p.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{a.ext=b.dataset.tab==='ext';a.focus=null;renderSheet()});
   p.querySelectorAll('[data-dk]').forEach(b=>b.onclick=()=>{const k=b.dataset.dk;const cost=decoCost(c,k);if(S.money<cost)return;S.money-=cost;c.deco=c.deco||{};c.deco[k]=dLvl(c,k)+1;S.rep=clamp(S.rep+1,0,100);gainXP(10);const d=DECOR.find(x=>x.k===k);toast(`🎨 ${d.n}: ${d.names[c.deco[k]]}!`,'good');a.focus=k;save();renderSheet()});
@@ -3025,6 +3146,58 @@ function sheetLoja(){
   return h+'</div>';
 }
 sheetLoja.bind2=(a,p)=>{p.querySelectorAll('[data-shop]').forEach(b=>b.onclick=()=>{const it=shopItems().find(x=>x.id===b.dataset.shop);if(!it||S.money<it.c)return;S.money-=it.c;it.f();toast(`${it.e} ${it.n} ativado!`,'good');save();renderSheet()})};
+
+/* ================== TELA INICIAL: cena do jogo ao vivo ================== */
+let HS=null,HCO=null;const HCache=document.createElement('canvas');let HMeta=null,homeRaf=0,homeLast=0;
+function homeDemo(){
+  if(HS)return HS;
+  const st=newState();st.started=true;st.rep=72;st.dayT=(18.75-6)/24;st.companies=[];st.uid=9900;
+  const c={id:9901,ramo:'alim',name:'CEO SIMULATOR',place:'Centro',lvl:4,gar:0,emps:[],mkt:0,floors:3,deco:{fachada:3,luz:3,plantas:3,piso:3,parede:2},ext:{beco:3,estac:3,calcada:2},hx:6};
+  const saved=S;S=st;try{for(let i=0;i<4;i++)for(let k=0;k<slots(c,i);k++)c.emps.push(Object.assign(genCand('alim',i),{cargo:i,moral:90}))}catch(e){}S=saved;
+  st.companies.push(c);st.viewCo=c.id;HS=st;HCO=c;return st;
+}
+function homeArt(){return '<canvas id="homeCv" style="width:100%;height:100%;display:block"></canvas>'}
+function crossArms(ctx,L,s){const sk=L.skin,sl=L.outfit;ctx.save();
+  ln(ctx,[[-9,-62],[-11,-50],[5,-47]],shade(sl,.7),6.4);ln(ctx,[[-9,-62],[-11,-50],[5,-47]],shade(sl,.95),5);
+  ln(ctx,[[9,-62],[11,-51],[-5,-49]],shade(sl,.78),6.4);ln(ctx,[[9,-62],[11,-51],[-5,-49]],sl,5);
+  ell(ctx,6.5,-47.4,3,2.6,sk);ell(ctx,-6.2,-49.2,3,2.6,shade(sk,.9));ctx.restore()}
+function homeCouple(ctx,t){
+  const man={skin:'#d9a074',hair:'#1b1410',style:'short',outfit:'#1f2a44',pants:'#1a2030',role:'suit',longSleeve:true,seed:3};
+  const wom={skin:'#f0c8a8',hair:'#7a3a1e',style:'long',outfit:'#f2ece0',pants:'#2b2b33',role:'none',longSleeve:true,seed:8};
+  const draw=(L,face,tt)=>{person(ctx,0,0,L,{face,pose:'stand',act:'idle',t:tt});crossArms(ctx,L)};
+  return draw(man,'fl',t),draw;
+}
+function homeFrame(now){
+  homeRaf=0;const cv=$('homeCv');if(!cv||!cv.offsetParent)return;
+  homeRaf=requestAnimationFrame(homeFrame);if(now-homeLast<33)return;homeLast=now;
+  const st=homeDemo(),c=HCO;const saved=S,sEA=EXTA,sUP=UPPER;S=st;
+  try{
+    const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;const dpr=Math.min(3,window.devicePixelRatio||1);
+    if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+    const z=Math.min(w/880,h/1500),t=now/1000;
+    const cx0=120,cy0=60+(h*.18)/z;const cx=cx0+Math.sin(t*.07)*55,cy=cy0+Math.sin(t*.05)*14;
+    EXTA=1;UPPER=0;
+    const key=[w,h,dpr].join('|');const M=1.25;
+    if(!HMeta||HMeta.key!==key){const W=Math.round(w*M*dpr),H=Math.round(h*M*dpr);HCache.width=W;HCache.height=H;const sc=HCache.getContext('2d');
+      const [s1,s2]=skyCol();const g=sc.createLinearGradient(0,0,0,H*.5);g.addColorStop(0,'#3b3f7a');g.addColorStop(.45,s1);g.addColorStop(1,s2);sc.fillStyle=g;sc.fillRect(0,0,W,H);clouds(sc,W/dpr,H/dpr,dpr);
+      sc.setTransform(dpr*z,0,0,dpr*z,W/2-cx0*z*dpr,H/2-cy0*z*dpr);drawStatic(sc,c);HMeta={key,W,H}}
+    const ctx=cv.getContext('2d');ctx.setTransform(1,0,0,1,0,0);
+    const ox=(cx-cx0)*z*dpr,oy=(cy-cy0)*z*dpr;ctx.drawImage(HCache,(HMeta.W-cv.width)/2+ox,(HMeta.H-cv.height)/2+oy,cv.width,cv.height,0,0,cv.width,cv.height);
+    ctx.setTransform(dpr*z,0,0,dpr*z,dpr*(w/2-cx*z),dpr*(h/2-cy*z));ctx.__z=1;
+    drawDynamic(ctx,c,t,[],1);
+    ctx.setTransform(1,0,0,1,0,0);
+    const fy=h*.47*dpr;
+    const g2=ctx.createLinearGradient(0,fy-90*dpr,0,cv.height);g2.addColorStop(0,'rgba(8,6,12,0)');g2.addColorStop(.3,'rgba(8,6,12,.6)');g2.addColorStop(.6,'rgba(8,6,12,.9)');g2.addColorStop(1,'rgba(8,6,12,.97)');
+    ctx.fillStyle=g2;ctx.fillRect(0,fy-90*dpr,cv.width,cv.height);
+  }catch(e){}finally{S=saved;EXTA=sEA;UPPER=sUP}
+}
+function renderHome(){
+  $('homeArt').innerHTML=homeArt();$('homeLogo').innerHTML=homeLogo();
+  $('homeGrid').innerHTML=[['perfil','PERFIL'],['negocios','NEGÓCIOS'],['conquistas','CONQUISTAS'],['loja','LOJA']].map(([k,n])=>`<button data-hm="${k}">${HICON[k]}<span>${n}</span></button>`).join('');
+  HMeta=null;if(!homeRaf)homeRaf=requestAnimationFrame(homeFrame);
+}
+window.addEventListener('resize',()=>{HMeta=null});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&$('homeCv')&&!homeRaf)homeRaf=requestAnimationFrame(homeFrame)});
 
 /* ================== LOOP ================== */
 let last=performance.now(),acc=0,acc2=0;
