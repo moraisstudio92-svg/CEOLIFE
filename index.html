@@ -19,6 +19,7 @@
 
 
 
+
 <style>
 :root{--bg:#0b0f1a;--bg2:#10172a;--card:#161e33;--card2:#1f2944;--line:#2a3552;--tx:#eef1f7;--mu:#8d97ad;--gold:#e8b54d;--gold2:#ffd27a;--green:#45d38a;--red:#ff6b6b;--blue:#5aa9ff}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -390,6 +391,7 @@ small{font-size:12px}
     <button data-h="decorar"><i>🎨</i>Decorar</button>
     <button data-h="negocios"><i>💼</i>Negócios</button>
     <button data-h="historia"><i>📖</i>História</button>
+    <button data-h="casa"><i>🏡</i>Casa<span class="dot" id="dotCasa"></span></button>
     <button data-h="ceo"><i>👤</i>CEO<span class="dot" id="dotCeo"></span></button>
   </nav>
   <div id="sheet" class="sheet"><div class="sheet-bg" id="sheetBg"></div><div class="sheet-p" id="sheetP"></div></div>
@@ -413,8 +415,8 @@ small{font-size:12px}
 /* ================== DADOS ================== */
 const DAY = 30;            // segundos reais por dia de jogo
 const SAVE_KEY = 'ceo_imperio_v01';
-const VERSION = '1.2';
-const UPDATE_NOTE = 'Garagem nova, escala real, setores e diálogos com personagens';
+const VERSION = '1.3';
+const UPDATE_NOTE = 'Terrenos, Minha Casa, família e vida pessoal';
 
 const RAMOS = {
   alim:{nome:'Alimentação',e:'🍔',cor:'#ff8a4c',custo:3000,aluguel:60,base:320,sm:1.0,
@@ -640,7 +642,7 @@ function unitsOf(c){return S.companies.filter(x=>brandOf(x)===brandOf(c))}
 function unitLabel(c){return c.unit?c.unit:(unitsOf(c).length>1?'Matriz':'')}
 function ramosDistintos(){return new Set(S.companies.map(c=>c.ramo)).size}
 function globalMult(){let m=1;if(S.ceo.perfil==='vis')m*=1.15;m*=1+.02*(S.ceo.attr.vis-1);if(S.licoes.includes('cliente'))m*=1.05;if(S.licoes.includes('cesta'))m*=1+.05*Math.max(0,ramosDistintos()-1);return m}
-function compMult(c){let m=1+.25*(c.lvl-1);if(!hasEss(c))m*=.4;if(c.emps.some(e=>e.cargo===3))m*=1.2;if(c.mkt>0)m*=1.3;m*=.8+S.rep/250;m*=globalMult();
+function compMult0(c){let m=1+.25*(c.lvl-1);if(!hasEss(c))m*=.4;if(c.emps.some(e=>e.cargo===3))m*=1.2;if(c.mkt>0)m*=1.3;m*=.8+S.rep/250;m*=globalMult();
   if((c.ramo==='alim'||c.ramo==='moda')&&S.companies.some(x=>x.ramo==='logi'))m*=1.1;
   for(const b of S.buffs)if(!b.cid||b.cid===c.id)m*=b.m;m*=1+.05*(unitsOf(c).length-1);m*=1+.04*decoTotal(c);m*=1+(eLvl(c,'estac')*6+eLvl(c,'calcada')*3)/100;m*=1+.15*((c.floors||1)-1);return m}
 function empProd(c,e){const R=RAMOS[c.ramo];return R.base*R.cargos[e.cargo].p*(.6+.4*e.stars)*TRAITS[e.trait].prod*(.5+e.moral/200)}
@@ -953,7 +955,7 @@ function updateLive(){
     else{const c=findCo(+id);if(!c)return;const cr=compRevDay(c),cc=compCost(c);
       if(key==='crev')v=fmt(cr);else if(key==='ccost')v=fmt(cc);else if(key==='cprof'){v=fmt(cr-cc);el.className=cr-cc>=0?'green':'red'}}
     el.textContent=v});
-  $('dotCeo').style.display=(S.ceo.pts>0||achReady()>0)?'block':'none';
+  $('dotCeo').style.display=(S.ceo.pts>0||achReady()>0)?'block':'none';updCasaDot();
   $('dotCos').style.display=S.companies.some(c=>[0,1].some(i=>!c.emps.some(e=>e.cargo===i)))?'block':'none';
 }
 
@@ -1070,7 +1072,7 @@ function showEvent(E){
 }
 
 /* ================== DIA ================== */
-function endDay(){
+function endDay0(){
   const rev=S.todayRev,cost=totCost();
   S.money-=cost;S.day++;S.dayT=0;S.todayRev=0;
   const decayMul=S.licoes.includes('paga')?.5:1;
@@ -2306,7 +2308,7 @@ function drawLive0(now){
   if(cam.z!==prevZ){prevZ=cam.z;zoomAt=now}
   const ea=c.empty?0:extAlpha(cv);EXTA=ea;UPPER=(!c.empty&&ea<.99)?VF:0;
   const [s1,s2]=skyCol();const n=night();
-  const key=[c.id,c.lvl,c.ramo,c.name,c.empty?1:0,isGar(c)?1:0,JSON.stringify(c.deco||{}),JSON.stringify(c.ext||{}),JSON.stringify(c.sec||{}),c.floors||1,UPPER,envOf(c),s1,n>.5?1:0,slots(c,3),w,h,dpr].join('|');
+  const key=[c.id,c.lvl,c.ramo,c.name,c.empty?1:0,isGar(c)?1:0,JSON.stringify(c.deco||{}),JSON.stringify(c.ext||{}),JSON.stringify(c.sec||{}),S.home?S.home.lot+':'+S.home.lvl:'',c.floors||1,UPPER,envOf(c),s1,n>.5?1:0,slots(c,3),w,h,dpr].join('|');
   const src=m=>{const s=m.z*dpr;return [(cam.cx-w/2/cam.z-m.cx)*s+m.W/2,(cam.cy-h/2/cam.z-m.cy)*s+m.H/2,w/cam.z*s,h/cam.z*s]};
   let need=!sMeta||sMeta.key!==key;
   if(!need){const r=src(sMeta);const inside=r[0]>=0&&r[1]>=0&&r[0]+r[2]<=sMeta.W+1&&r[1]+r[3]<=sMeta.H+1;if(!inside||(sMeta.z!==cam.z&&now-zoomAt>220))need=true}
@@ -2336,6 +2338,7 @@ function hitAt(cv,ev){const p=canvasWorld(cv,ev);if(!p||!cv._hits)return null;le
   return null}
 function useHit(hh){
   const c=viewCompany();
+  if(hh&&hh.type==='lot'){openSheet(sheetLot,{id:hh.id});return}
   if(c.empty){openSheet(sheetNewCo,{});return}
   if(!hh)return;
   if(hh.type==='building'){openSheet(sheetCo,{id:c.id});return}
@@ -2627,7 +2630,7 @@ function camFor(cv){if(!cams.main)cams.main={cx:110,cy:122,z:null};return cams.m
 /* ---------- Bairro em lotes (sem árvores dentro dos quintais) ---------- */
 function church(ctx){box(ctx,14,-5.2,1.6,1.6,70,'#f4efe6');for(let z=14;z<64;z+=16)vx(ctx,14.55,15.05,-3.6,z,z+10,'#7fb2d8');vx(ctx,14.5,15.1,-3.6,0,24,'#7a4a2a');
   poly(ctx,[P(14,-3.6,70),P(15.6,-3.6,70),P(14.8,-4.4,105)],'#c9512f');poly(ctx,[P(15.6,-5.2,70),P(15.6,-3.6,70),P(14.8,-4.4,105)],'#a8432a');ln(ctx,[P(14.8,-4.4,105),P(14.8,-4.4,120)],'#5a5a5a',1.6);ln(ctx,[P(14.6,-4.4,115),P(15,-4.4,115)],'#5a5a5a',1.6)}
-function lots(env){
+function lots0(env){
   const L=[];for(let x=-14.2;x<27;x+=4.3){if(env==='vila'&&x>11.5&&x<16.4)continue;L.push({x:x+.5,y:-4.7,tr:[x+3.55,-3.9]})}
   for(const x of [-11.4,-6.7])for(const y of [0.9,5.0])L.push({x,y,tr:x<-8?[x+3.1,y+.6]:null});
   if(env==='vila'||env==='jardim')for(const x of [19.6,24])for(const y of [0.8,4.9])L.push({x,y,tr:x<22?[x+3.15,y+.5]:null});
@@ -2638,7 +2641,7 @@ function backdrop(ctx,c,env){
   for(const l of lots(env)){items.push({d:l.x+l.y,f:((l,i)=>()=>{if(env==='serra'&&i%3===1){tree(ctx,l.x+1,l.y+1,1.2,'pine',i);return}house(ctx,l.x,l.y,big?2.5:2.2,big?2.1:1.9,big?46:40,'','',i,lit)})(l,i)});
     if(l.tr)items.push({d:l.tr[0]+l.tr[1]-.5,f:((l,i)=>()=>tree(ctx,l.tr[0],l.tr[1],.78+rr2(i)*.2,env==='serra'?'pine':i%5===2?'blossom':'round',i+20))(l,i)});i++}
   if(env==='vila')items.push({d:14+-4,f:()=>church(ctx)});
-  items.sort((a,b)=>a.d-b.d).forEach(o=>o.f());
+  for(const l of lotsHere(c))items.push({d:l.x+l.y+1,f:()=>drawLot(ctx,l,lit)});items.sort((a,b)=>a.d-b.d).forEach(o=>o.f());
 }
 
 /* ================== v0.9: primeira empresa na garagem de casa ================== */
@@ -3122,6 +3125,155 @@ function decor(ctx,c,list,t,hits){if(!isGar(c)){decor0(ctx,c,list,t,hits);sector
 
 {const _b=sheetCo.bind2;sheetCo.bind2=(a,p)=>{_b(a,p);const c=findCo(a.id);if(!c)return;p.querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>{const i=+b.dataset.sec;const k=secCost(c,i);if(S.money<k||hasSec(c,i))return;S.money-=k;secOf(c)[i]=1;toast(`🧱 Setor ${SECN[c.ramo][i]} construído! Mais vagas liberadas.`,'good');save();renderSheet()})}}
 
+/* ================== v1.3: terrenos, Minha Casa, família e vida pessoal ================== */
+const LOTP=[{k:'a',x:-5.1,y:-4.7},{k:'b',x:20.7,y:-4.7},{k:'c',x:-6.7,y:5.0},{k:'d',x:24,y:4.9,only:['vila','jardim']}];
+const RESID=['vila','jardim','lago','serra'];
+const LOTBASE={vila:45000,jardim:90000,lago:120000,serra:100000};
+const HOUSEN=['Terreno vazio','Casinha','Casa com varanda','Sobrado','Mansão com piscina'];
+const HOUSEC=[0,40000,110000,320000,1100000];
+function lotPrice(env,k){return Math.round(LOTBASE[env]*(1+'abcd'.indexOf(k)*.12)/1000)*1000}
+function homeS(){if(!S.home)S.home={lot:null,place:null,lvl:0};return S.home}
+function lotsHere(c){const env=envOf(c);if(!RESID.includes(env))return [];const pl=c.place||'Vila Esperança';return LOTP.filter(l=>!l.only||l.only.includes(env)).map(l=>Object.assign({},l,{id:pl+'#'+l.k,place:pl,env,price:lotPrice(env,l.k)}))}
+function allLots(){const out=[];for(const pl of PLACES){const env=ENVMAP[pl];if(!RESID.includes(env))continue;for(const l of LOTP){if(l.only&&!l.only.includes(env))continue;out.push({id:pl+'#'+l.k,place:pl,env,k:l.k,price:lotPrice(env,l.k)})}}return out}
+function lots(env){return lots0(env).filter(l=>!LOTP.some(p=>Math.abs(p.x-l.x)<.06&&Math.abs(p.y-l.y)<.06))}
+function kfmt(v){return v>=1e6?'R$ '+(v/1e6).toFixed(1).replace('.',',')+' mi':'R$ '+Math.round(v/1000)+' mil'}
+
+/* ---------- desenho dos terrenos e da sua casa ---------- */
+function drawLot(ctx,l,lit){
+  const h=homeS();const mine=h.lot===l.id;
+  if(mine&&h.lvl>0){playerHouse(ctx,l,h.lvl,lit);return}
+  const x0=l.x-.35,y0=l.y-.3,W=2.9,D=2.95;
+  flat(ctx,x0,y0,W,D,0,'#b79c6c');
+  for(let i=0;i<26;i++){const [px,py]=P(x0+.2+rr2(i+l.x*7)*(W-.4),y0+.2+rr2(i+9+l.y*5)*(D-.4));ell(ctx,px,py,4+rr2(i)*5,2+rr2(i+1)*2,i%3?'rgba(120,95,55,.25)':'rgba(110,160,70,.45)')}
+  for(let i=0;i<30;i++){const [px,py]=P(x0+rr2(i+40)*W,y0+rr2(i+70)*D);ln(ctx,[[px,py],[px-1,py-4]],'#6a9a42',1);ln(ctx,[[px+1.5,py],[px+2,py-3.5]],'#7aaa4a',1)}
+  const cs=[[x0,y0],[x0+W,y0],[x0+W,y0+D],[x0,y0+D]];
+  ctx.strokeStyle=mine?'rgba(47,154,90,.9)':'rgba(230,80,60,.85)';ctx.lineWidth=1;ctx.setLineDash([3,2]);ctx.beginPath();cs.forEach((q,i)=>{const p=P(q[0],q[1],6);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.closePath();ctx.stroke();ctx.setLineDash([]);
+  for(const q of cs){box(ctx,q[0]-.04,q[1]-.04,.08,.08,8,'#8a6a40')}
+  // placa grande
+  const sx=x0+W-.5,sy=y0+D-.1;const [px,py]=P(sx,sy);softShadow(ctx,px,py,16,5,.3);
+  ln(ctx,[[px-11,py],[px-11,py-30]],'#6a4a2c',2.4);ln(ctx,[[px+11,py],[px+11,py-30]],'#6a4a2c',2.4);
+  rrect(ctx,px-22,py-54,44,26,3,mine?'#2f9a5a':'#ffffff',EDGE);rrect(ctx,px-22,py-54,44,8,3,mine?'#23784a':'#c8322a');
+  ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 6px system-ui';ctx.fillText(mine?'SEU TERRENO':'TERRENO À VENDA',px,py-48.2);
+  ctx.fillStyle=mine?'#fff':'#1d2433';ctx.font='900 8.5px system-ui';ctx.fillText(mine?'🏡 construa!':kfmt(l.price),px,py-37.5);ctx.font='700 4.6px system-ui';ctx.fillStyle=mine?'#d9f5e3':'#5a6275';ctx.fillText(mine?'aba Casa':'toque para comprar',px,py-31);ctx.textAlign='left';
+}
+function playerHouse(ctx,l,lvl,lit){
+  const W=[0,2.2,2.6,2.6,3.0][lvl],D=[0,1.9,2.1,2.1,2.3][lvl],H=[0,40,44,76,80][lvl];const x=l.x-(W-2.2)*.5,y=l.y-(D-1.9)*.6;
+  if(lvl>=4){const px0=x+W+.25,py0=y+.15;flat(ctx,px0-.12,py0-.12,1.5,2.1,0,'#e9e4da');const g=ctx.createLinearGradient(...P(px0,py0),...P(px0+1.25,py0+1.85));g.addColorStop(0,'#5fd0e6');g.addColorStop(1,'#1f8fbf');poly(ctx,[P(px0,py0),P(px0+1.25,py0),P(px0+1.25,py0+1.85),P(px0,py0+1.85)],g);
+    for(let i=0;i<8;i++){const [wx,wy]=P(px0+.15+rr2(i)*1,py0+.15+rr2(i+3)*1.6);ln(ctx,[[wx-3,wy],[wx+3,wy]],'rgba(255,255,255,.5)',.8)}
+    ln(ctx,[P(px0+1.1,py0+.6,0),P(px0+1.1,py0+.6,9)],'#c9ced8',1);ln(ctx,[P(px0+1.1,py0+.8,0),P(px0+1.1,py0+.8,9)],'#c9ced8',1);
+    box(ctx,px0+.2,py0+1.95,.7,.28,4,'#ffffff');box(ctx,px0+.2,py0+1.95,.18,.28,9,'#ffffff');tree(ctx,px0+1.55,py0-.1,1.1,'palm',3)}
+  house(ctx,x,y,W,D,H,'','',[0,1,2,4,0][lvl],lit);
+  if(lvl>=3){for(const wx of [x+W*.22,x+W*.56,x+W*.82]){vx(ctx,wx-.2,wx+.2,y+D,50,66,'#ffffff');vx(ctx,wx-.16,wx+.16,y+D,52,64,lit?'#ffd98a':'#7fb2d8');vx(ctx,wx-.16,wx+.16,y+D,58,64,'rgba(220,240,255,.4)');vx(ctx,wx-.02,wx+.02,y+D,52,64,'#fff')}
+    vx(ctx,x,x+W,y+D,40,42,'#d8d0c2');vy(ctx,y+D*.3,y+D*.7,x+W,50,66,'#ffffff');vy(ctx,y+D*.34,y+D*.66,x+W,52,64,lit?'#ffd98a':'#7fb2d8')}
+  if(lvl>=2){box(ctx,x+W*.08,y+D+.02,W*.5,.42,3,'#d8cfbf');box(ctx,x+W*.08,y+D+.38,.06,.06,30,'#ffffff');box(ctx,x+W*.55,y+D+.38,.06,.06,30,'#ffffff');poly(ctx,[P(x+W*.06,y+D,30),P(x+W*.6,y+D,30),P(x+W*.6,y+D+.48,28),P(x+W*.06,y+D+.48,28)],'#b9452c')}
+  // caixa de correio com o nome
+  const [mx,my]=P(x+W+.05,y+D+.62);ln(ctx,[[mx,my],[mx,my-14]],'#5a4a3a',1.6);rrect(ctx,mx-4,my-20,8,6,1.5,'#2f6bd8',EDGE);
+  ctx.save();ctx.font='800 4.2px system-ui';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText((S.ceo.name||'').slice(0,9).toUpperCase(),mx,my-15.8);ctx.restore();
+}
+
+/* ---------- etiquetas de preço (vista de longe) e família no quintal ---------- */
+function lotLife(ctx,c,t,list,hits){
+  const h=homeS();const ls=lotsHere(c);if(!ls.length)return;const z=ctx.__z||1;
+  for(const l of ls){const mine=h.lot===l.id;hits.push({w:[l.x+1.1,l.y+1.2],r:48,type:'lot',id:l.id});
+    if(z<.82||EXTA>.3)list.push({d:1e5-3,f:()=>{const [px,py]=P(l.x+1.1,l.y+1.1,mine&&h.lvl>0?110:60);const s=1.3/Math.max(.05,z*fitZoom($('gameCv')));ctx.save();ctx.translate(px,py-8*s);ctx.scale(s,s);
+      const txt=mine?(h.lvl?'🏡 Sua casa':'🏡 Seu terreno'):'🏷️ '+kfmt(l.price);ctx.font='800 8px system-ui';const w=ctx.measureText(txt).width+12;rrect(ctx,-w/2,-11,w,15,7,mine?'#2f9a5a':'#c8322a','#fff');ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText(txt,0,-.6);poly(ctx,[[-3,4],[3,4],[0,8]],mine?'#2f9a5a':'#c8322a');ctx.restore()}})
+    if(mine&&h.lvl>0){const f=famS();const W=[0,2.2,2.6,2.6,3.0][h.lvl],D=[0,1.9,2.1,2.1,2.3][h.lvl];const x=l.x-(W-2.2)*.5,y=l.y-(D-1.9)*.6;const fy=y+D+.38;
+      const mem=[];if(f.partner)mem.push({L:lookToL(f.partner.look,5),k:1});f.kids.forEach((kd,i)=>mem.push({L:lookToL(kd.look,9+i),k:.68}));
+      mem.forEach((m,i)=>{const mx=x+.4+i*.55+Math.sin(t*.4+i*2)*.25;list.push({d:mx+fy,f:()=>{const [px,py]=P(mx,fy);ctx.save();ctx.translate(px,py);ctx.scale(m.k,m.k);person(ctx,0,0,m.L,{face:i%2?'fl':'fr',pose:'stand',act:'idle',t:t+i});ctx.restore()}})})}}
+}
+function extObjects(ctx,c,list,t,hits){extObjects0(ctx,c,list,t,hits);if(!UPPER){ambientLife(ctx,c,t,list);lotLife(ctx,c,t,list,hits)}}
+
+/* ---------- vida pessoal (estilo The Sims) ---------- */
+function lifeS(){if(!S.life)S.life={en:80,fun:70,soc:65,hp:80,used:{}};return S.life}
+function famS(){if(!S.fam)S.fam={status:'solteiro',partner:null,since:0,kids:[],cand:null};return S.fam}
+function moodVal(){const l=lifeS();return Math.round((l.en+l.fun+l.soc+l.hp)/4)}
+function moodMult(){return .88+.24*moodVal()/100}
+function compMult(c){return compMult0(c)*moodMult()}
+function familyCost(){const f=famS();return f.kids.length*120+(f.status==='casado'?60:0)}
+function lifeTick(){const l=lifeS(),h=homeS(),f=famS();const hl=h.lot?h.lvl:0;
+  l.en=clamp(l.en-14+hl*3,0,100);l.fun=clamp(l.fun-10,0,100);l.soc=clamp(l.soc-9+(f.partner?4:0)+f.kids.length*2,0,100);l.hp=clamp(l.hp-4,0,100);
+  const fc=familyCost();if(fc>0)S.money-=fc;
+  if(moodVal()<35)setTimeout(()=>toast('😟 Seu CEO está desanimado. Cuide da vida pessoal na aba Casa.','bad'),1200)}
+function endDay(){endDay0();try{lifeTick();save();updCasaDot()}catch(e){}}
+function updCasaDot(){const d=$('dotCasa');if(d)d.style.display=moodVal()<40?'block':'none'}
+const LIFEACT=[
+  {k:'dormir',e:'😴',n:'Descansar em casa',c:0,eff:{en:22},req:()=>true,note:()=>homeS().lot&&homeS().lvl?`+${homeS().lvl*5} pela casa`:'melhor com casa própria'},
+  {k:'lazer',e:'🎮',n:'Lazer (cinema, games)',c:200,eff:{fun:30}},
+  {k:'amigos',e:'🍻',n:'Sair com amigos',c:350,eff:{soc:30,fun:10}},
+  {k:'academia',e:'🏋️',n:'Academia',c:250,eff:{hp:22,en:-5}},
+  {k:'familia',e:'👨‍👩‍👧',n:'Tempo em família',c:0,eff:{soc:25,fun:15},req:()=>!!famS().partner||famS().kids.length>0,note:()=>famS().partner?'':'precisa de família'},
+  {k:'ferias',e:'✈️',n:'Férias (7 em 7 dias)',c:8000,eff:{en:40,fun:40,soc:20,hp:20},cd:7}
+];
+const FN_F=['Ana','Beatriz','Camila','Fernanda','Juliana','Larissa','Mariana','Patrícia','Rafaela','Tatiane'],FN_M=['Bruno','Carlos','Diego','Eduardo','Felipe','Gustavo','Henrique','Lucas','Rafael','Thiago'];
+function randPerson(seed){const h=hash('pp'+seed);const fem=h%2===0;const name=(fem?FN_F:FN_M)[(h>>>4)%10];const st=fem?['long','bun','curly','long'][(h>>>7)%4]:['short','slick','curly','bald','short'][(h>>>7)%5];
+  return {name,fem,look:{skin:SKINS[(h>>>2)%4],hair:HAIRC[(h>>>5)%4],style:st,outfit:['#c94a6b','#3a7bd5','#e0a03a','#4aa37a','#7a5ac9','#d85a3a'][(h>>>9)%6]},trait:['romântico(a)','divertido(a)','caseiro(a)','ambicioso(a)','calmo(a)'][(h>>>11)%5]}}
+function bar(v,col){return `<div class="mbar" style="height:8px;margin-top:4px;background:#26304a"><i style="width:${v}%;background:${col}"></i></div>`}
+function sheetCasa(){
+  const h=homeS(),f=famS(),l=lifeS();const m=moodVal();
+  let s=head('🏡 Minha Casa')+`<div class="sh-body"><canvas id="famCv" style="width:100%;height:150px;display:block;border-radius:16px;background:radial-gradient(120% 90% at 50% 100%,#3b5a3a,#1b2a3a)"></canvas>`;
+  // vida pessoal
+  const mc=m>=65?'var(--green)':m>=40?'#ffb35c':'var(--red)';
+  s+=`<div class="card"><div style="display:flex;align-items:center;gap:8px"><b>${m>=65?'😄':m>=40?'🙂':'😟'} Humor ${m}%</b><small class="mu" style="margin-left:auto">produtividade ${moodMult()>=1?'+':''}${Math.round((moodMult()-1)*100)}%</small></div>${bar(m,mc)}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;font-size:13px">${[['⚡ Energia',l.en,'#f2c14a'],['🎉 Diversão',l.fun,'#e35d9b'],['💬 Social',l.soc,'#5aa9ff'],['❤️ Saúde',l.hp,'#45d38a']].map(([n,v,c])=>`<div>${n} <b>${Math.round(v)}</b>${bar(v,c)}</div>`).join('')}</div></div>`;
+  s+=`<div class="card"><b>📅 O que fazer hoje</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">`;
+  for(const a of LIFEACT){const used=l.used[a.k]!=null&&S.day-l.used[a.k]<(a.cd||1);const ok=!used&&(!a.req||a.req())&&S.money>=a.c;
+    s+=`<button class="btn ${ok?'sec':''} sm" data-life="${a.k}" ${ok?'':'disabled'} style="text-align:left;padding:10px"><b>${a.e} ${a.n}</b><br><small style="font-weight:500">${used?'✓ feito hoje':a.c?fmt(a.c):'grátis'}${a.note&&a.note()?' · '+a.note():''}</small></button>`}
+  s+=`</div></div>`;
+  // casa
+  s+=`<div class="card"><b>🏠 Casa própria</b>`;
+  if(!h.lot){s+=`<p class="mu" style="font-size:13px;margin:6px 0 10px">Compre um terreno nos bairros residenciais. As placas <b>TERRENO À VENDA</b> aparecem no mapa (afaste o zoom para ver os preços).</p>`;
+    let last='';for(const lt of allLots()){if(lt.place!==last){s+=`<div style="margin:10px 0 4px;font-weight:800;font-size:13px">📍 ${esc(lt.place)}</div>`;last=lt.place}
+      s+=`<div class="kv" style="align-items:center"><span>Lote ${lt.k.toUpperCase()}</span><button class="btn sm" data-lot="${lt.id}" ${S.money<lt.price?'disabled':''}>Comprar · ${fmt(lt.price)}</button></div>`}}
+  else{const nx=h.lvl+1;s+=`<div class="kv"><span>Terreno</span><b>📍 ${esc(h.place)}</b></div><div class="kv"><span>Imóvel</span><b>${HOUSEN[h.lvl]}</b></div>`;
+    if(nx<HOUSEN.length)s+=`<button class="btn" data-house="1" ${S.money<HOUSEC[nx]?'disabled':''} style="margin-top:10px;width:100%">🔨 Construir: ${HOUSEN[nx]} · ${fmt(HOUSEC[nx])}<br><small style="font-weight:600">+${nx*3} de energia por noite${nx>=2?' · cabe mais filhos':''}</small></button>`;
+    s+=`<button class="btn sec sm" data-map="1" style="margin-top:8px;width:100%">📍 Ver minha casa no mapa</button>`}
+  s+=`</div>`;
+  // família
+  s+=`<div class="card"><b>👨‍👩‍👧 Família</b>`;
+  const maxK=[0,1,2,3,3][h.lot?h.lvl:0];
+  if(f.status==='solteiro'){
+    if(f.cand){const c=f.cand;s+=`<div class="kv" style="margin-top:8px"><span>${c.fem?'👩':'👨'} <b>${esc(c.name)}</b><br><small class="mu">${c.trait}</small></span></div><div style="display:flex;gap:8px;margin-top:8px"><button class="btn sm" data-fam="namorar">💕 Namorar</button><button class="btn sec sm" data-fam="outra" ${S.money<300?'disabled':''}>Conhecer outra pessoa · R$ 300</button></div>`}
+    else s+=`<p class="mu" style="font-size:13px;margin:6px 0">Solteiro(a). Socializar ajuda a conhecer alguém.</p><button class="btn sm" data-fam="conhecer" ${S.money<300||l.soc<30?'disabled':''}>💬 Conhecer alguém · R$ 300${l.soc<30?' (social baixo)':''}</button>`}
+  else{const p=f.partner;s+=`<div class="kv" style="margin-top:8px"><span>${f.status==='casado'?'💍 Casado(a) com':'💕 Namorando'} <b>${esc(p.name)}</b></span><small class="mu">${p.trait}</small></div>`;
+    if(f.status==='namorando'){const ok=S.day-f.since>=3&&h.lot&&h.lvl>=1;s+=`<button class="btn sm" data-fam="casar" ${!ok||S.money<15000?'disabled':''} style="margin-top:8px">💍 Pedir em casamento · R$ 15.000</button><small class="mu" style="display:block;margin-top:4px">${S.day-f.since<3?'Namorem pelo menos 3 dias. ':''}${!(h.lot&&h.lvl>=1)?'Precisa de casa própria construída.':''}</small>`}
+    else{f.kids.forEach(k=>{s+=`<div class="kv"><span>👶 ${esc(k.name)}</span><small class="mu">${S.day-k.born} dias</small></div>`});
+      if(f.kids.length<3)s+=`<button class="btn sm" data-fam="filho" ${f.kids.length>=maxK||S.money<5000?'disabled':''} style="margin-top:8px">🍼 Ter um filho · R$ 5.000</button><small class="mu" style="display:block;margin-top:4px">${f.kids.length>=maxK?'Precisa de uma casa maior para mais filhos.':'Filhos deixam o CEO mais feliz (social) e custam R$ 120/dia.'}</small>`}
+    if(familyCost())s+=`<div class="kv" style="margin-top:6px"><span>Custo da família</span><b class="red">${fmt(familyCost())}/dia</b></div>`}
+  return s+`</div></div>`;
+}
+sheetCasa.bind2=(a,p)=>{
+  const h=homeS(),f=famS(),l=lifeS();
+  p.querySelectorAll('[data-life]').forEach(b=>b.onclick=()=>{const ac=LIFEACT.find(x=>x.k===b.dataset.life);if(!ac||S.money<ac.c)return;S.money-=ac.c;for(const k in ac.eff){let v=ac.eff[k];if(ac.k==='dormir'&&h.lot)v+=h.lvl*5;l[k]=clamp(l[k]+v,0,100)}l.used[ac.k]=S.day;toast(`${ac.e} ${ac.n}! Humor ${moodVal()}%`,'good');save();updCasaDot();renderSheet()});
+  p.querySelectorAll('[data-lot]').forEach(b=>b.onclick=()=>buyLot(b.dataset.lot));
+  const hb=p.querySelector('[data-house]');if(hb)hb.onclick=()=>{const nx=h.lvl+1;if(S.money<HOUSEC[nx])return;S.money-=HOUSEC[nx];h.lvl=nx;l.en=clamp(l.en+15,0,100);toast(`🏡 ${HOUSEN[nx]} pronta!`,'good');save();renderSheet()};
+  const mb=p.querySelector('[data-map]');if(mb)mb.onclick=()=>showHomeOnMap();
+  p.querySelectorAll('[data-fam]').forEach(b=>b.onclick=()=>{const k=b.dataset.fam;
+    if(k==='conhecer'||k==='outra'){if(S.money<300)return;S.money-=300;f.cand=randPerson(S.day*31+Math.floor(Math.random()*999));l.soc=clamp(l.soc+8,0,100)}
+    if(k==='namorar'&&f.cand){f.partner=f.cand;f.cand=null;f.status='namorando';f.since=S.day;l.soc=clamp(l.soc+20,0,100);l.fun=clamp(l.fun+10,0,100);toast(`💕 Você está namorando ${esc(f.partner.name)}!`,'good')}
+    if(k==='casar'){if(S.money<15000)return;S.money-=15000;f.status='casado';l.soc=100;l.fun=clamp(l.fun+30,0,100);toast(`💍 Vocês se casaram!`,'good')}
+    if(k==='filho'){if(S.money<5000)return;S.money-=5000;const kp=randPerson(S.day*7+f.kids.length*13+5);f.kids.push({name:kp.name,look:kp.look,born:S.day});l.soc=clamp(l.soc+20,0,100);toast(`🍼 Nasceu ${esc(kp.name)}!`,'good')}
+    save();renderSheet()});
+  drawFamily();
+};
+function buyLot(id){const lt=allLots().find(x=>x.id===id);const h=homeS();if(!lt)return;
+  if(h.lot){showInfo('🏡','Você já tem um terreno',`Seu terreno fica em ${esc(h.place)}. Construa sua casa nele pela aba Casa.`);return}
+  if(S.money<lt.price){showInfo('💰','Falta dinheiro',`Este terreno custa ${fmt(lt.price)}.`);return}
+  S.money-=lt.price;h.lot=id;h.place=lt.place;h.lvl=0;toast(`🏡 Terreno comprado em ${esc(lt.place)}! Construa sua casa na aba Casa.`,'good');save();if(sheetStack.length)renderSheet()}
+function sheetLot(a){const lt=allLots().find(x=>x.id===a.id);const h=homeS();if(!lt)return head('Terreno');const mine=h.lot===lt.id;
+  return head(mine?'🏡 Seu terreno':'🏷️ Terreno à venda')+`<div class="sh-body"><div class="card"><div class="kv"><span>Bairro</span><b>📍 ${esc(lt.place)}</b></div><div class="kv"><span>Tamanho</span><b>12 × 25 m</b></div><div class="kv"><span>Preço</span><b class="gold">${fmt(lt.price)}</b></div>
+    <p class="mu" style="font-size:13px;margin:8px 0 0">${mine?'Construa e melhore sua casa na aba 🏡 Casa.':'Compre para construir sua casa: ela recupera a energia do seu CEO e abre espaço para a família.'}</p></div>
+    ${mine?'<button class="btn" data-casa="1" style="width:100%">🏡 Abrir Minha Casa</button>':h.lot?'<div class="lockc">Você já tem um terreno. Só dá para ter uma casa por enquanto.</div>':`<button class="btn" data-buy="1" style="width:100%" ${S.money<lt.price?'disabled':''}>Comprar terreno · ${fmt(lt.price)}</button>`}</div>`}
+sheetLot.bind2=(a,p)=>{const b=p.querySelector('[data-buy]');if(b)b.onclick=()=>{buyLot(a.id);openSheet(sheetCasa,{})};const c=p.querySelector('[data-casa]');if(c)c.onclick=()=>openSheet(sheetCasa,{})};
+function showHomeOnMap(){const h=homeS();const co=S.companies.find(c=>(c.place||'Vila Esperança')===h.place);
+  if(!co&&!(S.companies.length===0&&h.place==='Vila Esperança')){showInfo('📍',`Sua casa fica em ${esc(h.place)}`,`Abra uma empresa ou filial em ${esc(h.place)} para ver sua casa no mapa daquele bairro.`);return}
+  if(co)S.viewCo=co.id;const k=h.lot.split('#')[1];const lp=LOTP.find(x=>x.k===k);const cv=$('gameCv');const cam=camFor(cv);const [wx,wy]=P(lp.x+1.1,lp.y+1);cam.cx=wx;cam.cy=wy-30;cam.z=fitZoom(cv)*1.25;clampCam(cv);sMeta=null;closeSheet();renderHUD()}
+function drawFamily(){const cv=$('famCv');if(!cv)return;const dpr=renderDPR();const w=cv.clientWidth,hh=cv.clientHeight;cv.width=w*dpr;cv.height=hh*dpr;const ctx=cv.getContext('2d');
+  const f=famS();const mem=[{L:lookToL(S.ceo.look,3),k:1}];if(f.partner)mem.push({L:lookToL(f.partner.look,5),k:1});f.kids.forEach((kd,i)=>mem.push({L:lookToL(kd.look,9+i),k:.66}));
+  const n=mem.length,k=Math.min(hh/72,w/(n*34))*dpr;ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(cv.width/2,cv.height*.93,cv.width*.4,cv.height*.06,0,0,7);ctx.fill();
+  mem.forEach((m,i)=>{const x=cv.width*((i+1)/(n+1));ctx.setTransform(k*m.k,0,0,k*m.k,x,cv.height*.95);person(ctx,0,0,m.L,{face:i<n/2?'fr':'fl',pose:'stand',act:'idle',t:i})});ctx.setTransform(1,0,0,1,0,0);
+  if(n===1){ctx.fillStyle='rgba(255,255,255,.6)';ctx.font=`600 ${12*dpr}px system-ui`;ctx.fillText('Sua família aparece aqui',10*dpr,20*dpr)}}
+setTimeout(()=>{try{ACH.push({id:'casa',n:'Casa própria',d:'Construa sua primeira casa',e:'🏡',p:()=>homeS().lvl>=1?1:0,r:5000},{id:'casamento',n:'Casamento',d:'Case-se',e:'💍',p:()=>famS().status==='casado'?1:0,r:8000},{id:'familia3',n:'Família grande',d:'Tenha 3 filhos',e:'👨‍👩‍👧‍👦',p:()=>clamp(famS().kids.length/3,0,1),r:20000},{id:'mansao',n:'Mansão',d:'Construa a mansão com piscina',e:'🏝️',p:()=>homeS().lvl>=4?1:0,r:60000})}catch(e){}},0);
+
 /* ================== MÚSICA (renderizada em áudio, toca no primeiro toque) ================== */
 const Music={el:null,on:(()=>{try{return localStorage.getItem('ceo_music')!=='0'}catch(e){return true}})(),want:false,fade:null,
   async build(){
@@ -3206,6 +3358,7 @@ function hudButtons(){
     else if(h==='decorar')openSheet(sheetDecor,{id:c.id});
     else if(h==='negocios')openSheet(sheetNeg,{});
     else if(h==='historia')openSheet(sheetHist,{});
+    else if(h==='casa')openSheet(sheetCasa,{});
     else openSheet(sheetCEO,{})});
   $('tMe').onclick=()=>openSheet(sheetCEO,{});
   $('hudObj').onclick=()=>openSheet(sheetHist,{});
