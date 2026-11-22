@@ -424,8 +424,8 @@ small{font-size:12px}
 /* ================== DADOS ================== */
 const DAY = 840;            // segundos reais por dia de jogo
 const SAVE_KEY = 'ceo_imperio_v01';
-const VERSION = '1.7';
-const UPDATE_NOTE = 'Botão ver dentro/fora, bairro maior, terrenos com tamanho, caminhada sem atravessar móveis e luzes novas';
+const VERSION = '1.7.1';
+const UPDATE_NOTE = 'Placa do terreno abre a compra do lote (valor e tamanho)';
 
 const RAMOS = {
   alim:{nome:'Alimentação',e:'🍔',cor:'#ff8a4c',custo:3000,aluguel:60,base:320,sm:1.0,
@@ -3187,8 +3187,9 @@ function playerHouse(ctx,l,lvl,lit){
 function lotLife(ctx,c,t,list,hits){
   const h=homeS();const ls=lotsHere(c);if(!ls.length)return;const z=ctx.__z||1;
   for(const l of ls){const mine=h.lot===l.id;hits.push({w:typeof lotSignW==='function'?lotSignW(l):[l.x+1.1,l.y+1.2],r:62,type:'lot',id:l.id});
+    if((z<.82||EXTA>.3)&&!(typeof ILLDRAW!=='undefined'&&ILLDRAW)){const [tx,ty]=P(l.x+1.1,l.y+1.1,mine&&h.lvl>0?110:60);const ts=1.3/Math.max(.05,z*fitZoom($('gameCv')));hits.push({x:tx,y:ty-12*ts,r:Math.max(26,30*ts),type:'lot',id:l.id})}
     if((z<.82||EXTA>.3)&&!(typeof ILLDRAW!=='undefined'&&ILLDRAW))list.push({d:1e5-3,f:()=>{const [px,py]=P(l.x+1.1,l.y+1.1,mine&&h.lvl>0?110:60);const s=1.3/Math.max(.05,z*fitZoom($('gameCv')));ctx.save();ctx.translate(px,py-8*s);ctx.scale(s,s);
-      const txt=mine?(h.lvl?'🏡 Sua casa':'🏡 Seu terreno'):'🏷️ '+kfmt(l.price);ctx.font='800 8px system-ui';const w=ctx.measureText(txt).width+12;rrect(ctx,-w/2,-11,w,15,7,mine?'#2f9a5a':'#c8322a','#fff');ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText(txt,0,-.6);poly(ctx,[[-3,4],[3,4],[0,8]],mine?'#2f9a5a':'#c8322a');ctx.restore()}})
+      const txt=mine?(h.lvl?'🏡 Sua casa':'🏡 Seu terreno'):'🏷️ '+kfmt(l.price)+(l.fm?' · '+l.fm+'×'+l.dm+' m':'');ctx.font='800 8px system-ui';const w=ctx.measureText(txt).width+12;rrect(ctx,-w/2,-11,w,15,7,mine?'#2f9a5a':'#c8322a','#fff');ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText(txt,0,-.6);poly(ctx,[[-3,4],[3,4],[0,8]],mine?'#2f9a5a':'#c8322a');ctx.restore()}})
     if(mine&&h.lvl>0){const f=famS();const W=[0,2.2,2.6,2.6,3.0][h.lvl],D=[0,1.9,2.1,2.1,2.3][h.lvl];const x=l.x-(W-2.2)*.5,y=l.y-(D-1.9)*.6;const fy=y+D+.38;
       const mem=[];if(f.partner)mem.push({L:lookToL(f.partner.look,5),k:1});f.kids.forEach((kd,i)=>mem.push({L:lookToL(kd.look,9+i),k:.68}));
       mem.forEach((m,i)=>{const mx=x+.4+i*.55+Math.sin(t*.4+i*2)*.25;list.push({d:mx+fy,f:()=>{const [px,py]=P(mx,fy);ctx.save();ctx.translate(px,py);ctx.scale(m.k,m.k);person(ctx,0,0,m.L,{face:i%2?'fl':'fr',pose:'stand',act:'idle',t:t+i});ctx.restore()}})})}}
@@ -4066,6 +4067,14 @@ function lightPass(cv,home){
   else{const L=homeLayout();const [sx,sy,z]=wToS(cv,L.W*.5,L.D*.5,0);ctx.save();ctx.translate(sx,sy);ctx.scale(1,.5);glow(ctx,0,0,L.W*40*z,'rgba(255,220,160,A)',.22*k);ctx.restore()}
   ctx.restore()}
 {const _dl=drawLive;drawLive=function(now){const before=lastLive;_dl(now);if(lastLive===before)return;const cv=$('gameCv');if(!cv||!cv.width||!cv.offsetParent)return;try{lightPass(cv,VH)}catch(e){}}}
+
+/* toque: placa/etiqueta de terreno sempre abre a compra do lote; chão vazio de longe não abre decoração */
+function hitAt(cv,ev){const p=canvasWorld(cv,ev);if(!p||!cv._hits)return null;
+  let bl=null,bd=1e9;for(const hh of cv._hits){if(hh.type!=='lot'||hh.x==null)continue;const d=Math.hypot(hh.x-p[0],hh.y-p[1]);if(d<hh.r*1.3&&d<bd){bd=d;bl=hh}}
+  if(bl)return bl;
+  const r=hitAt0(cv,ev);if(r&&(r.type==='floor'||r.type==='ext')&&(VH||XV||viewRel(cv)<.82))return null;
+  if(r&&r.type==='building'){const c=viewCompany();const gar=isGar(c);const gx=(p[0]/T+p[1]/TH)/2,gy=(p[1]/TH-p[0]/T)/2;const X0=gar?GX0:0,X1=gar?GX1:RW,Y0=gar?GY0:0,Y1=gar?GY1:RD;const zz=(gar?GH:WALLH*(c.floors||1))/TH;if(gx<X0-zz-1||gx>X1+1||gy<Y0-zz-1||gy>Y1+1)return null}
+  return r}
 
 /* ================== MÚSICA (renderizada em áudio, toca no primeiro toque) ================== */
 const Music={el:null,on:(()=>{try{return localStorage.getItem('ceo_music')!=='0'}catch(e){return true}})(),want:false,fade:null,
