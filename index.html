@@ -424,8 +424,8 @@ small{font-size:12px}
 /* ================== DADOS ================== */
 const DAY = 840;            // segundos reais por dia de jogo
 const SAVE_KEY = 'ceo_imperio_v01';
-const VERSION = '1.8.2';
-const UPDATE_NOTE = 'Telhado da casa corrigido (paredes de dentro não atravessam mais)';
+const VERSION = '1.9';
+const UPDATE_NOTE = 'Nova empresa: Barbearia 💈 com corte de cabelo e barba';
 
 const RAMOS = {
   alim:{nome:'Alimentação',e:'🍔',cor:'#ff8a4c',custo:3000,aluguel:60,base:320,sm:1.0,
@@ -2168,7 +2168,7 @@ function upperObjects(ctx,c,f,list,t,hits,over){
 }
 
 /* ---------- Prédio visto de fora ---------- */
-function shellWall(c){const env=envOf(c);const base={alim:'#f1e3c8',moda:'#f2d8df',tech:'#c97a5a',logi:'#a9b2bf'}[c.ramo];return dLvl(c,'parede')===4?'#2c3a5a':dLvl(c,'parede')>=2?shade(base,1.05):base}
+function shellWall(c){const env=envOf(c);const base={barb:'#e9e2d6',alim:'#f1e3c8',moda:'#f2d8df',tech:'#c97a5a',logi:'#a9b2bf'}[c.ramo];return dLvl(c,'parede')===4?'#2c3a5a':dLvl(c,'parede')>=2?shade(base,1.05):base}
 function drawShell0(ctx,c,a,t){
   if(a<=.01)return;ctx.save();ctx.globalAlpha=a;
   const F=c.floors||1,H=WALLH*F;const W=shellWall(c);const R=RAMOS[c.ramo];const open=isOpen(c);const n=night();
@@ -2255,7 +2255,7 @@ function drawDynamic(ctx,c,t,hits,ea){
   if(open&&sc.svc.length){const n=clamp(1+Math.floor(S.rep/35)+Math.floor(decoTotal(c)/5)+(eLvl(c,'calcada')>=2?1:0),1,5);
     for(let j=0;j<n;j++){const per=26,cyc=Math.floor((t+j*8.7+c.id*2.3)/per),ph=(t+j*8.7+c.id*2.3)%per;const st=sc.svc[(cyc+j)%sc.svc.length];const segs=custSegs(st,c);if(ph>total(segs))continue;
       const a=agentState(segs,ph);let pos=a.pos,face=a.face;const s=a.s;if(s.type==='wait'){pos=svcPoint(st);face='br';st.busy=true}
-      const L=npcLook(cyc*3+j);
+      let L=npcLook(cyc*3+j);if(c.ramo==='barb'){L=barbLook(L,cyc*3+j,segs.indexOf(s)>2,st.kind);if(s.type==='wait'&&(st.kind==='barber'||st.kind==='shave')){st.cust={L,u:a.u};continue}}
       put(pos[0],pos[1],pos[0]+pos[1],()=>{const [x,y]=P(pos[0],pos[1]);const hp=person(ctx,x,y,L,{face,pose:s.type==='walk'?'walk':'stand',act:s.carry?'carry':s.type==='walk'?'walk':'idle',t:t+j*.7,carry:s.carry||null});if(s.type==='wait')over.push({head:hp,bubble:RAMOS[c.ramo].e})})}}
   // clientes de carro
   const elv=eLvl(c,'estac');
@@ -3007,7 +3007,7 @@ function secCard(c){
 }
 function sectorFloors(ctx,c){
   if(c.empty)return;const s=secOf(c);
-  if(s[0]){const col={alim:['#f4f4f0','#e6e9ec'],moda:['#c99a68','#b9875a'],tech:['#3d5a8a','#365281'],logi:['#9ea4ad','#959ba4']}[c.ramo];
+  if(s[0]){const col={barb:['#3a3a40','#f1f1ee'],alim:['#f4f4f0','#e6e9ec'],moda:['#c99a68','#b9875a'],tech:['#3d5a8a','#365281'],logi:['#9ea4ad','#959ba4']}[c.ramo];
     if(c.ramo==='moda'){flat(ctx,0,0,8,3.65,0,col[0]);for(let y=.3;y<3.65;y+=.3)ln(ctx,[P(0,y),P(8,y)],'rgba(90,55,25,.3)',.8)}
     else if(c.ramo==='tech'){flat(ctx,0,0,8,3.65,0,col[0]);for(let i=0;i<260;i++){const [px,py]=P(rr2(i)*8,rr2(i+5)*3.65);ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(px,py,1.4,1.4)}}
     else{for(let x=0;x<8;x+=.5)for(let y=0;y<3.6;y+=.5)flat(ctx,x,y,.5,Math.min(.5,3.65-y),0,((x*2+y*2)%2)?col[0]:col[1]);ctx.strokeStyle='rgba(120,130,140,.25)';ctx.lineWidth=.6;ctx.beginPath();for(let x=0;x<=8;x+=.5){ctx.moveTo(...P(x,0));ctx.lineTo(...P(x,3.65))}for(let y=0;y<3.65;y+=.5){ctx.moveTo(...P(0,y));ctx.lineTo(...P(8,y))}ctx.stroke()}}
@@ -4041,7 +4041,7 @@ function storeNav(c,sc){const gar=isGar(c);const s=c.empty?'':JSON.stringify(sec
   if(!gar)navWall(g,X0,Y1,X1,Y1,[[DOOR_IN[0]-.75-X0,DOOR_IN[0]+.75-X0]]);
   for(const st of sc.stations){const [gx,gy]=st.pos;navRect(g,gx-.66,gy-.45,1.32,1.32,.12)}
   if(!gar){const pl=dLvl(c,'plantas');const spots=[[9.45,7.4],[.45,7.25],[9.5,4.4],[.5,4.9],[5.6,7.45],[3.5,7.45],[6.9,7.45]];const np=c.empty?2:[1,2,4,5,7][pl];for(let i=0;i<np;i++)navRect(g,spots[i][0]-.25,spots[i][1]-.25,.5,.5,.1);
-    if(c.ramo==='alim'){navRect(g,.15,1,.75,.85);navRect(g,.15,3,.45,1.8)}if(c.ramo==='moda'){navRect(g,.6,1.1,.3,2.2);navRect(g,.7,4.2,.4,.4)}
+    if(c.ramo==='alim'){navRect(g,.15,1,.75,.85);navRect(g,.15,3,.45,1.8)}if(c.ramo==='moda'){navRect(g,.6,1.1,.3,2.2);navRect(g,.7,4.2,.4,.4)}if(c.ramo==='barb')navRect(g,.18,1.1,.42,1.9);
     const sv=secOf(c);if(sv[0])navWall(g,0,3.65,8,3.65,[[3.2,3.8],[5.4,6.0],[7.6,8]]);if(sv[2]){const y0=sv[3]?2.4:0;navWall(g,8,y0,8,8,[[6.1-y0,7.2-y0]])}if(sv[3]){navWall(g,8,0,8,2.35,[]);navWall(g,8,2.35,10,2.35,[[.5,1.2]])}}
   for(const st of sc.stations){const sp=svcPoint(st);navClear(g,sp[0]-.15,sp[1]-.15,.3,.3)}
   SNAV[c.id]={k,g};return g}
@@ -4213,6 +4213,77 @@ function chanVisuals(ctx,c,list,t){if(c.empty||!isOpen(c)||VH)return;const xs=(D
   const act=CHAN.filter(ch=>chanOk(c,ch)&&chanLvl(c,ch.k));if(act.length){const per=4.5,k=Math.floor(t/per),u=(t%per)/per;const ch=act[k%act.length];const [px,py]=P(xs-1.2,8.3,70+u*40);
     list.push({d:1e5-5,f:()=>{ctx.save();ctx.globalAlpha=Math.min(1,u*4)*(1-u);rrect(ctx,px-15,py-10,30,13,6,'rgba(20,26,44,.85)');ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';const tx=ch.e+' +1 pedido';fitFont(ctx,tx,800,6,26);ctx.fillText(tx,px,py-3.4);ctx.textBaseline='alphabetic';ctx.textAlign='left';ctx.restore()}})}}
 {const _eo=extObjects;extObjects=function(ctx,c,list,t,hits){_eo(ctx,c,list,t,hits);if(!UPPER)try{chanVisuals(ctx,c,list,t)}catch(e){}}}
+
+/* ================== v1.9: BARBEARIA ================== */
+RAMOS.barb={nome:'Barbearia',e:'💈',cor:'#1f4e8c',custo:2500,aluguel:50,base:300,sm:1.0,
+  portes:['Cadeira na garagem','Barbearia de bairro','Barbearia','Barbearia premium','Rede de barbearias'],
+  cargos:[{n:'Barbeiro',e:'💈',p:1},{n:'Recepcionista',e:'📅',p:.7},{n:'Barba & Bigode',e:'🪒',p:.9},{n:'Gerente',e:'👔',p:.5}],
+  nomes:['Navalha de Ouro','Barbearia do Zé','Corte Fino','Dom Bigode','Tesoura Afiada'],desc:'Barata de abrir. Corte de cabelo e barba: cada cadeira atende um cliente por vez.'};
+RAMO_ORDER.splice(1,0,'barb');
+ROOMK.barb=['barber','counter','shave','board'];
+STN.barber=['Cadeira de barbeiro','💈'];STN.shave=['Cadeira de barba','🪒'];
+ROLE.barb=['apron','none','apron','suit'];
+ROOMST.barb={wall:'#ece7dd',floor:['#2b2b30','#f1f1ee'],check:true,trim:'#c8322a'};
+UPNAMES.barb=['Lounge de espera','Sala VIP'];
+SECN.barb=['Cortes','Recepção','Barba','Gerência'];
+{const _bs=buildScene;buildScene=function(c){const r=_bs(c);if(c.ramo==='barb')r.svc=r.stations.filter(s=>(s.kind==='barber'||s.kind==='shave')&&s.e);return r}}
+{const _cs=custSegs;custSegs=function(st,c){const segs=_cs(st,c);if(c.ramo==='barb'){for(const s of segs){if(s.type==='wait')s.d=st.kind==='shave'?8:10;if(s.carry)s.carry=null}}return segs}}
+function barbLook(L,seed,after,kind){const h=hash('bb'+seed);const man=h%4!==0;let o=Object.assign({},L);
+  if(man){o.fem=false;o.dress=false;o.skirt=false;o.style=after?(h%2?'buzz':'slick'):(['curly','short','curly','short'][h%4]);o.beard=after?(kind==='shave'?'':'stub'):(h%3?'full':'stub')}
+  else{o.style=after?'bob':'long'}
+  return o}
+/* cadeira de barbeiro com espelho, bancada, cliente de capa e barbeiro trabalhando */
+{const _ds=drawStation;drawStation=function(ctx,st,c,t,hits,over){
+  if(st.kind!=='barber'&&st.kind!=='shave')return _ds(ctx,st,c,t,hits,over);
+  const [gx,gy]=st.pos;const open=isOpen(c);const e=open?st.e:null;const L=e?lookFor(e,c):null;const ph=st.idx*1.7+c.id;const tt=t+ph;const lvl=stLvl(c,st.key);const shave=st.kind==='shave';
+  const cust=st.cust;st.cust=null;
+  // bancada e espelho na parede de trás
+  const wood=lvl>=4?'#2d2420':'#6b4a33',top=lvl>=4?'#d9d2c4':'#8a6446';
+  shadowOf(ctx,gx-.62,gy-.62,1.24,.42,.18);box(ctx,gx-.62,gy-.62,1.24,.42,26,wood,0,top);
+  vx(ctx,gx-.5,gx+.5,gy-.6,30,74,lvl>=3?'#c9a24a':'#3a3d46');
+  {const a=P(gx-.44,gy-.59,33),b=P(gx+.44,gy-.59,71);const g=ctx.createLinearGradient(a[0],b[1],b[0],a[1]);g.addColorStop(0,'#cfe3f2');g.addColorStop(.5,'#9fbfd8');g.addColorStop(1,'#e6f1f8');vx(ctx,gx-.44,gx+.44,gy-.59,33,71,g);
+    ln(ctx,[P(gx-.3,gy-.59,40),P(gx-.05,gy-.59,64)],'rgba(255,255,255,.65)',1.2);ln(ctx,[P(gx-.15,gy-.59,38),P(gx+.05,gy-.59,52)],'rgba(255,255,255,.45)',.8)}
+  for(let i=0;i<4;i++){const [bx,by]=P(gx-.45+i*.25,gy-.48,26);rrect(ctx,bx-1.6,by-7,3.2,7,1,['#2f6bd8','#e8b54d','#c8322a','#2f9a5a'][i]);ell(ctx,bx,by-7,1.2,.6,'#1b1c21')}
+  {const [sx,sy]=P(gx+.42,gy-.45,26);rrect(ctx,sx-2.2,sy-1.4,4.4,1.6,.6,'#9aa1ad');ln(ctx,[[sx-2,sy-1.4],[sx+3,sy-3.4]],'#c9ced8',.8)}
+  // cadeira
+  const cx=gx,cy=gy+.38;const [px,py]=P(cx,cy);softShadow(ctx,px,py,16,6,.32);
+  ell(ctx,px,py,7,3.2,'#2a2c33');ell(ctx,px,py-1,6,2.6,'#9aa1ad');tube(ctx,[[px,py-1],[px,py-12]],2.6,'#c9ced8',false);
+  const seat=lvl>=4?'#1b1c21':'#b3201a';
+  box(ctx,cx-.27,cy-.22,.54,.5,5,seat,13,shade(seat,1.25));
+  box(ctx,cx-.3,cy-.24,.06,.5,6,'#9aa1ad',18);box(ctx,cx+.24,cy-.24,.06,.5,6,'#9aa1ad',18);
+  const back=()=>{if(shave){box(ctx,cx-.25,cy-.32,.5,.12,26,seat,15,shade(seat,1.2))}else{box(ctx,cx-.25,cy+.2,.5,.1,22,seat,15,shade(seat,1.2))}};
+  if(shave)back();
+  // cliente
+  const serving=!!(cust&&e);let headPt=null;
+  if(cust){const CL=Object.assign({},cust.L);const face=shave?'fl':'br';const [qx,qy]=P(cx,cy);
+    person(ctx,qx,qy-1,CL,{face,pose:'sit',act:'idle',t:tt});
+    // capa
+    ctx.fillStyle=lvl>=3?'#1b1c21':'#f4f4f2';ctx.beginPath();ctx.moveTo(qx-6.5,qy-32);ctx.quadraticCurveTo(qx,qy-35,qx+6.5,qy-32);ctx.lineTo(qx+9.5,qy-12);ctx.quadraticCurveTo(qx,qy-9,qx-9.5,qy-12);ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=.6;ctx.stroke();
+    if(shave){ell(ctx,qx,qy-37.5,4.6,3,'#ffffff');ell(ctx,qx-1.4,qy-38.4,1.6,1,'rgba(220,230,240,.9)')}
+    if(serving&&!shave){for(let i=0;i<6;i++){const u=((tt*.7+i/6)%1);const hx=qx+Math.sin(i*2.1)*7,hy=qy-38+u*36;ctx.fillStyle=`rgba(40,28,20,${.7*(1-u)})`;ctx.fillRect(hx,hy,1.1,1.6)}}}
+  if(!shave)back();
+  // fios de cabelo no chão
+  if(c.emps.length){for(let i=0;i<7;i++){const [hx,hy]=P(cx-.35+rr2(i+st.idx*7)*.7,cy+.1+rr2(i+3+st.idx)*.4);ctx.fillStyle='rgba(50,35,25,.5)';ctx.fillRect(hx,hy,1.6,.6)}}
+  // barbeiro
+  if(e){if(serving){const [bx,by]=P(cx+.58,cy+.12);headPt=person(ctx,bx,by,L,{face:shave?'fl':'bl',pose:'stand',act:shave?'sew':'stir',t:tt});
+      const [hx,hy]=P(cx+.2,cy+.05,44+Math.sin(tt*9)*1.5);if(shave){ln(ctx,[[hx,hy],[hx+3.4,hy-1.6]],'#e6e9ee',1.2)}else{ln(ctx,[[hx-1.6,hy-1],[hx+1.6,hy+1]],'#c9ced8',.9);ln(ctx,[[hx-1.6,hy+1],[hx+1.6,hy-1]],'#c9ced8',.9)}}
+    else{const [bx,by]=P(cx,cy);headPt=person(ctx,bx,by-1,L,{face:'fl',pose:'sit',act:'phone',t:tt});if(!shave)box(ctx,cx-.25,cy+.2,.5,.1,22,seat,15,shade(seat,1.2))}}
+  hits.push({w:[gx,gy+.4],r:30,type:'station',key:st.key,cid:c.id});
+  const topP=[px,py-58];
+  if(e)over.push({st,e,head:headPt||topP,c,t:tt,key:st.key,lvl});
+  else if(st.e)over.push({off:true,head:topP,c,key:st.key,lvl});
+  else over.push({vaga:true,head:topP,cargo:st.cargo,c,key:st.key,lvl});
+}}
+/* poste de barbearia girando na porta e banco de espera */
+function barberPole(ctx,x,y,t){const [px,py]=P(x,y);softShadow(ctx,px,py,7,2.5,.3);rrect(ctx,px-3,py-6,6,6,1,'#2a2c33');
+  ctx.save();ctx.beginPath();ctx.rect(px-2.6,py-40,5.2,34);ctx.clip();ctx.fillStyle='#f4f4f2';ctx.fillRect(px-2.6,py-40,5.2,34);
+  const off=(t*14)%12;for(let k=-2;k<5;k++){const y0=py-40+k*12+off;ctx.fillStyle='#c8322a';ctx.beginPath();ctx.moveTo(px-2.6,y0);ctx.lineTo(px+2.6,y0-4);ctx.lineTo(px+2.6,y0);ctx.lineTo(px-2.6,y0+4);ctx.fill();ctx.fillStyle='#1f4e8c';ctx.beginPath();ctx.moveTo(px-2.6,y0+6);ctx.lineTo(px+2.6,y0+2);ctx.lineTo(px+2.6,y0+6);ctx.lineTo(px-2.6,y0+10);ctx.fill()}
+  ctx.restore();const g=ctx.createLinearGradient(px-2.6,0,px+2.6,0);g.addColorStop(0,'rgba(255,255,255,.35)');g.addColorStop(.5,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(0,0,0,.25)');ctx.fillStyle=g;ctx.fillRect(px-2.6,py-40,5.2,34);
+  ell(ctx,px,py-41,3.2,2,'#c9ced8');ell(ctx,px,py-42.5,2.4,1.6,'#e6e9ee')}
+{const _eo=extObjects;extObjects=function(ctx,c,list,t,hits){_eo(ctx,c,list,t,hits);if(c.ramo==='barb'&&!c.empty&&!UPPER){const x=DOOR_OUT[0]+(isGar(c)?-.9:.85),y=DOOR_OUT[1]-.45;list.push({d:x+y,f:()=>barberPole(ctx,x,y,isOpen(c)?t:0)})}}}
+{const _dc=decor;decor=function(ctx,c,list,t,hits){_dc(ctx,c,list,t,hits);if(c.ramo!=='barb'||c.empty||UPPER||isGar(c)||EXTA>.98)return;
+  list.push({d:.4+2.1,f:()=>{box(ctx,.18,1.1,.42,1.9,12,'#6b4a33',0,'#8a6446');box(ctx,.18,1.1,.42,1.9,4,'#1b1c21',12,'#2a2c33');box(ctx,.18,1.1,.1,1.9,14,'#1b1c21',12);
+    for(let i=0;i<3;i++){const [mx,my]=P(.4,1.4+i*.6,17);rrect(ctx,mx-3,my-1.6,6,2.4,.5,['#e8b54d','#2f6bd8','#c8322a'][i])}}})}}
 
 /* ================== MÚSICA (renderizada em áudio, toca no primeiro toque) ================== */
 const Music={el:null,on:(()=>{try{return localStorage.getItem('ceo_music')!=='0'}catch(e){return true}})(),want:false,fade:null,
