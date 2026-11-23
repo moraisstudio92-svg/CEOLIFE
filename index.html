@@ -424,8 +424,8 @@ small{font-size:12px}
 /* ================== DADOS ================== */
 const DAY = 840;            // segundos reais por dia de jogo
 const SAVE_KEY = 'ceo_imperio_v01';
-const VERSION = '1.7.2';
-const UPDATE_NOTE = 'Casa que ficava colada no ponto foi afastada';
+const VERSION = '1.8';
+const UPDATE_NOTE = 'Motos e bikes 3D, vendas por app de delivery e loja online, lote vizinho e placas corrigidas';
 
 const RAMOS = {
   alim:{nome:'Alimentação',e:'🍔',cor:'#ff8a4c',custo:3000,aluguel:60,base:320,sm:1.0,
@@ -1446,7 +1446,7 @@ function decor0(ctx,c,list,t,hits){
   const add=(d,f)=>list.push({d,f});const addO=(d,f)=>list.push({d,f,out:true});
   const pl=dLvl(c,'plantas');const spots=[[9.45,7.4,0],[.45,7.25,0],[9.5,4.4,1],[.5,4.9,1],[5.6,7.45,0],[3.5,7.45,0],[6.9,7.45,0]];
   const np=UPPER?0:c.empty?2:[1,2,4,5,7][pl];for(let i=0;i<np;i++){const [x,y,b]=spots[i];plantAt(ctx,list,x,y,b||pl>=3);hits.push({w:[x,y],r:20,type:'deco',k:'plantas',cid:c.id})}
-  if(EXTA<.5)addO(2.9+8.3,()=>{const [x,y]=P(2.9,8.3);softShadow(ctx,x,y,12,4,.3);poly(ctx,[[x-8,y],[x-4,y-24],[x+4,y-24],[x+8,y]],'#2a2a2e',EDGE);rrect(ctx,x-5,y-21,10,8,1.5,c.empty?'#e8b54d':open?'#2f9a5a':'#c9473f');ctx.fillStyle='#fff';ctx.font='900 4px system-ui';ctx.textAlign='center';ctx.fillText(c.empty?'ALUGA':open?'ABERTO':'FECHADO',x,y-15.5);if(!c.empty){ctx.fillStyle='#ddd';ctx.font='700 3.3px system-ui';const [o,cl]=hrsOf(c);ctx.fillText(openLen(c)>=24?'24 HORAS':`${hhTxt(o)} - ${hhTxt(cl)}`,x,y-9)}ctx.textAlign='left'});
+  if(EXTA<.5)addO(2.9+8.3,()=>{const [x,y]=P(2.9,8.3);softShadow(ctx,x,y,12,4,.3);poly(ctx,[[x-8,y],[x-4,y-24],[x+4,y-24],[x+8,y]],'#2a2a2e',EDGE);rrect(ctx,x-6.4,y-22,12.8,8,1.5,c.empty?'#e8b54d':open?'#2f9a5a':'#c9473f');ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';{const t1=c.empty?'ALUGA':open?'ABERTO':'FECHADO';fitFont(ctx,t1,900,4.4,11.4);ctx.fillText(t1,x,y-18)}if(!c.empty){ctx.fillStyle='#e6e6e6';const [o,cl]=hrsOf(c);const t2=openLen(c)>=24?'24 HORAS':`${hhTxt(o)}–${hhTxt(cl)}`;fitFont(ctx,t2,700,3.4,12.4);ctx.fillText(t2,x,y-10.4)}ctx.textBaseline='alphabetic';ctx.textAlign='left'});
   if(!c.empty)hits.push({w:[2.9,8.1],r:18,type:'hours',cid:c.id});
   const fa=dLvl(c,'fachada');
   if(fa>=1&&EXTA<.5)addO(RW+RD+.2,()=>{const z0=34,z1=46;for(let i=0;i<8;i++){const x0=.4+i*.3;poly(ctx,[P(x0,8.02,z1),P(x0+.3,8.02,z1),P(x0+.3,8.55,z0),P(x0,8.55,z0)],i%2?'#fff':R.cor,EDGE)}});
@@ -1782,7 +1782,7 @@ function extObjects0(ctx,c,list,t,hits){
   // placa do beco
   hits.push({w:[11.2,4],r:60,type:'ext',k:'beco',cid:c.id});
   // estacionamento
-  if(el===0){add(15+7.6,()=>{const [x,y]=P(15,7.6);ln(ctx,[[x-8,y],[x-8,y-26]],'#5b4a3a',2);ln(ctx,[[x+8,y],[x+8,y-26]],'#5b4a3a',2);rrect(ctx,x-16,y-40,32,16,2,'#f4f4f4',EDGE);ctx.fillStyle='#c9473f';ctx.font='900 6px system-ui';ctx.textAlign='center';ctx.fillText('TERRENO',x,y-33);ctx.fillStyle='#333';ctx.font='700 4.5px system-ui';ctx.fillText('à venda',x,y-27);ctx.textAlign='left'})}
+  if(el===0){add(15+7.6,()=>nbSign(ctx,c))}
   else{
     add(17.6+7.4,()=>{const [x,y]=P(17.6,7.4);ln(ctx,[[x,y],[x,y-34]],'#3a3d46',2);rrect(ctx,x-8,y-46,16,14,3,'#2f6bd8',EDGE);ctx.fillStyle='#fff';ctx.font='900 10px system-ui';ctx.textAlign='center';ctx.fillText('P',x,y-35);ctx.textAlign='left'});
     if(el>=3){for(const [x,y] of [[12.9,1.1],[17.6,1.2],[17.6,4.2]])add(x+y,()=>{const [px,py]=P(x,y);softShadow(ctx,px+4,py,20,7,.3);ctx.fillStyle='#6b4a33';ctx.fillRect(px-2,py-22,4,22);ell(ctx,px,py-30,14,12,'#3f7f45',EDGE);ell(ctx,px-5,py-34,7,6,'#4f9a52')});
@@ -3468,8 +3468,10 @@ function homeTick(now){
     if(!HMS.pos){HMS.pos=L.hub.slice()}
     if(!HMS.task&&!HMS.path&&HMS.queue.length){const tk=HMS.queue.shift();const tp=taskPoint(tk,L,hourNow());if(tp){HMS.task=tk;tk.started=false;HMS.path=routeTo(HMS.pos,tp.pt,L)}}
     if(!HMS.task&&!HMS.path&&!HMS.queue.length&&now-HMS.idle>2500){const h=hourNow();const auto=autoPick(L,h);if(auto){HMS.queue.push(auto);HMS.idle=now}}
-    if(HMS.path){const sp=1.8*Math.min(.05,(now-(HMS.lastNow||now))/1000);let tgt=HMS.path[0];const dx=tgt[0]-HMS.pos[0],dy=tgt[1]-HMS.pos[1],ds=Math.hypot(dx,dy);
-      if(ds<=sp){HMS.pos=tgt.slice();HMS.path.shift();if(!HMS.path.length){HMS.path=null;if(HMS.task)HMS.task.started=true}}else{HMS.pos=[HMS.pos[0]+dx/ds*sp,HMS.pos[1]+dy/ds*sp];HMS.face=dx-dy>0?(dx+dy>0?'fr':'br'):(dx+dy>0?'fl':'bl')}}}
+    if(HMS.path){const dt=Math.min(.05,(now-(HMS.lastNow||now))/1000);const tgt=HMS.path[0];const last=HMS.path.length===1;const dx=tgt[0]-HMS.pos[0],dy=tgt[1]-HMS.pos[1],ds=Math.hypot(dx,dy);const v=HMS.vel||[0,0];
+      const want=last?Math.min(1.8,ds*2.8+.2):1.8;const kk=Math.min(1,dt*6.5);v[0]+=(dx/(ds||1)*want-v[0])*kk;v[1]+=(dy/(ds||1)*want-v[1])*kk;HMS.vel=v;const st=Math.hypot(v[0],v[1])*dt;
+      if(ds<=(last?.035:.2)||ds<=st){if(last){HMS.pos=tgt.slice();HMS.vel=[0,0]}HMS.path.shift();if(!HMS.path.length){HMS.path=null;if(HMS.task)HMS.task.started=true}}
+      else{HMS.pos=[HMS.pos[0]+v[0]*dt,HMS.pos[1]+v[1]*dt];if(Math.hypot(v[0],v[1])>.3)HMS.face=v[0]-v[1]>0?(v[0]+v[1]>0?'fr':'br'):(v[0]+v[1]>0?'fl':'bl')}}}
   HMS.lastNow=now;
   if(now-HMS.lastUi>400){HMS.lastUi=now;updNeedsHud()}
 }
@@ -3962,17 +3964,17 @@ function drawLot(ctx,l,lit){
   for(const q of cs){box(ctx,q[0]-.04,q[1]-.04,.08,.08,8,'#8a6a40')}
   const sx=x0+W-.5,sy=y0+D-.1;const [px,py]=P(sx,sy);softShadow(ctx,px,py,16,5,.3);
   ln(ctx,[[px-11,py],[px-11,py-30]],'#6a4a2c',2.4);ln(ctx,[[px+11,py],[px+11,py-30]],'#6a4a2c',2.4);
-  rrect(ctx,px-22,py-56,44,28,3,mine?'#2f9a5a':'#ffffff',EDGE);rrect(ctx,px-22,py-56,44,8,3,mine?'#23784a':'#c8322a');
-  ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 6px system-ui';ctx.fillText(mine?'SEU TERRENO':'TERRENO À VENDA',px,py-50.2);
-  ctx.fillStyle=mine?'#fff':'#1d2433';ctx.font='900 8.5px system-ui';ctx.fillText(mine?'🏡 construa!':kfmt(l.price),px,py-40);
-  ctx.font='700 4.6px system-ui';ctx.fillStyle=mine?'#d9f5e3':'#5a6275';ctx.fillText(mine?'aba Casa':`${l.fm||12}×${l.dm||25} m · toque`,px,py-32.5);
+  rrect(ctx,px-24,py-58,48,30,3,mine?'#2f9a5a':'#ffffff',EDGE);rrect(ctx,px-24,py-58,48,9,3,mine?'#23784a':'#c8322a');ctx.fillStyle=mine?'#23784a':'#c8322a';ctx.fillRect(px-24,py-52,48,3);
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';const h1=mine?'SEU TERRENO':'TERRENO À VENDA';fitFont(ctx,h1,900,5.6,42);ctx.fillText(h1,px,py-53.4);
+  ctx.fillStyle=mine?'#fff':'#1d2433';const h2=mine?'🏡 construa!':kfmt(l.price);fitFont(ctx,h2,900,9,42);ctx.fillText(h2,px,py-42.6);
+  ctx.fillStyle=mine?'#d9f5e3':'#5a6275';const h3=mine?'aba Casa':`${l.fm||12} × ${l.dm||25} m`;fitFont(ctx,h3,700,5,42);ctx.fillText(h3,px,py-33.4);ctx.textBaseline='alphabetic';
 }
 function lotPlan(lt){const fm=lt.fm||15,dm=lt.dm||25;const k=Math.min(220/fm,150/dm);const w=fm*k,h=dm*k;const X=(260-w)/2,Y=14;
   const hw=Math.min(w-20,10*k),hh=Math.min(h*.45,12*k);
   return `<svg viewBox="0 0 260 ${h+62}" style="width:100%;max-height:270px;display:block;margin:4px 0 8px">
   <rect x="${X}" y="${Y}" width="${w}" height="${h}" rx="4" fill="#c8b083" stroke="#c8322a" stroke-width="2" stroke-dasharray="6 4"/>
   <rect x="${X+(w-hw)/2}" y="${Y+h*.18}" width="${hw}" height="${hh}" rx="3" fill="rgba(255,255,255,.55)" stroke="rgba(0,0,0,.25)" stroke-dasharray="3 3"/>
-  <text x="${X+w/2}" y="${Y+h*.18+hh/2+4}" text-anchor="middle" font-size="11" font-weight="700" fill="#5a4a30">casa</text>
+  <text x="${X+w/2}" y="${Y+h*.18+hh/2+4}" text-anchor="middle" font-size="11" font-weight="700" fill="#5a4a30">${lt.label||'casa'}</text>
   <rect x="${X}" y="${Y+h+8}" width="${w}" height="12" rx="3" fill="#3a3f4a"/><text x="${X+w/2}" y="${Y+h+17.5}" text-anchor="middle" font-size="8.5" font-weight="800" fill="#f2c94c">RUA</text>
   <text x="${X+w/2}" y="${Y+h+38}" text-anchor="middle" font-size="12" font-weight="900" fill="currentColor">frente ${fm} m</text>
   <text x="${X-8}" y="${Y+h/2}" text-anchor="middle" font-size="12" font-weight="900" fill="currentColor" transform="rotate(-90 ${X-8} ${Y+h/2})">fundo ${dm} m</text></svg>`}
@@ -4075,6 +4077,137 @@ function hitAt(cv,ev){const p=canvasWorld(cv,ev);if(!p||!cv._hits)return null;
   const r=hitAt0(cv,ev);if(r&&(r.type==='floor'||r.type==='ext')&&(VH||XV||viewRel(cv)<.82))return null;
   if(r&&r.type==='building'){const c=viewCompany();const gar=isGar(c);const gx=(p[0]/T+p[1]/TH)/2,gy=(p[1]/TH-p[0]/T)/2;const X0=gar?GX0:0,X1=gar?GX1:RW,Y0=gar?GY0:0,Y1=gar?GY1:RD;const zz=(gar?GH:WALLH*(c.floors||1))/TH;if(gx<X0-zz-1||gx>X1+1||gy<Y0-zz-1||gy>Y1+1)return null}
   return r}
+
+/* ================== v1.8: motos/bikes com volume, lote vizinho, canais de venda ================== */
+/* ---------- volume real: o perfil é desenhado em camadas ao longo da largura do veículo ---------- */
+const VFWD={'+x':[1,0],'-x':[-1,0],'+y':[0,1],'-y':[0,-1]};
+const XTC={};
+function xCanvas(c,w,h){if(!c)c=document.createElement('canvas');if(c.width<w)c.width=w;if(c.height<h)c.height=h;return c}
+const XCACHE=new Map();
+function extrudeDraw(ctx,sx,sy,hd,width,box,drawFn,ckey){
+  const m=ctx.getTransform();const k=Math.hypot(m.a,m.b)||1;const [bx,by,bw,bh]=box;
+  const W=Math.ceil(bw*k)+4,H=Math.ceil(bh*k)+4;let XT1,XT2,ret;const full=ckey?ckey+'|'+k.toFixed(2):null;const hit=full&&XCACHE.get(full);
+  if(hit){XT1=hit.a;XT2=hit.b;ret=hit.r;XCACHE.delete(full);XCACHE.set(full,hit)}
+  else{if(full){XT1=document.createElement('canvas');XT1.width=W;XT1.height=H;XT2=document.createElement('canvas');XT2.width=W;XT2.height=H}
+    else{const ck=bw+'x'+bh;const pr=XTC[ck]||(XTC[ck]=[null,null]);pr[0]=xCanvas(pr[0],W,H);pr[1]=xCanvas(pr[1],W,H);XT1=pr[0];XT2=pr[1]}
+    const c1=XT1.getContext('2d'),c2=XT2.getContext('2d');c1.setTransform(1,0,0,1,0,0);c1.clearRect(0,0,W,H);c1.setTransform(k,0,0,k,-bx*k+2,-by*k+2);
+    const ss=softShadow;softShadow=()=>{};try{ret=drawFn(c1)}finally{softShadow=ss}
+    c2.setTransform(1,0,0,1,0,0);c2.clearRect(0,0,W,H);c2.drawImage(XT1,0,0,W,H,0,0,W,H);c2.globalCompositeOperation='source-atop';c2.fillStyle='rgba(12,14,22,.5)';c2.fillRect(0,0,W,H);c2.globalCompositeOperation='source-over';
+    if(full){XCACHE.set(full,{a:XT1,b:XT2,r:ret});if(XCACHE.size>48)XCACHE.delete(XCACHE.keys().next().value)}}
+  const F=VFWD[hd]||[1,0];const Lx=-F[1],Ly=F[0];const off=P(Lx*width,Ly*width);const len=Math.hypot(off[0],off[1])*k;const n=clamp(Math.ceil(len/.9),3,14);
+  const sl=[];for(let i=0;i<n;i++){const u=-.5+i/(n-1);sl.push([off[0]*u,off[1]*u])}sl.sort((p,q)=>p[1]-q[1]);
+  ctx.save();ctx.setTransform(1,0,0,1,0,0);
+  for(let i=0;i<n;i++){const [ox,oy]=sl[i];const dx=m.a*(sx+ox+bx)+m.c*(sy+oy+by)+m.e-2,dy=m.b*(sx+ox+bx)+m.d*(sy+oy+by)+m.f-2;ctx.drawImage(i<n-1?XT2:XT1,0,0,W,H,dx,dy,W,H)}
+  ctx.restore();return ret}
+function latBar(ctx,cx,cy,hd,half,col,w){const F=VFWD[hd]||[1,0];const o=P(-F[1]*half,F[0]*half);const a=[cx-o[0],cy-o[1]],b=[cx+o[0],cy+o[1]];const s=o[1]<0?[b,a]:[a,b];
+  ln(ctx,[s[0],s[1]],col,w);return s}
+{const _moto=moto;moto=function(ctx,x,y,hd,col,box2,t,moving,lvl=1){
+  if(typeof hd==='number')hd=hd>0?'+x':'-x';const [sx,sy]=P(x,y);const [a,b]=AX[hd];
+  softShadow(ctx,sx,sy+2,36,13,.45);
+  const r=extrudeDraw(ctx,sx,sy,hd,box2?.26:.2,[-62,-92,124,118],c=>_moto(c,0,0,hd,col,box2,t,moving,lvl),moving?null:['m',hd,col,box2,lvl,Math.round(night()*4)].join());
+  // guidão atravessado, manoplas e retrovisores dos dois lados
+  const L=(lx,ly)=>[sx+a*lx*1.15,sy+b*lx*1.15+ly*1.15];const hc=L(8.6,-35.3);
+  const [e1,e2]=latBar(ctx,hc[0],hc[1],hd,.3,'#1b1c21',1.5);
+  for(const e of [e1,e2])ell(ctx,e[0],e[1],1.6,1.2,'#121317');
+  // pedaleiras dos dois lados
+  const pg=L(.2,-9.7);latBar(ctx,pg[0],pg[1],hd,.2,'#2a2c33',1.2);
+  return [sx+r[0],sy+r[1]]}}
+{const _bike=bicycle;bicycle=function(ctx,x,y,hd,t,col,moving=true){
+  if(typeof hd==='number')hd=hd>0?'+x':'-x';const [sx,sy]=P(x,y);const [a,b]=AX[hd];
+  softShadow(ctx,sx,sy+1.5,30,9,.38);
+  const r=extrudeDraw(ctx,sx,sy,hd,.08,[-50,-70,100,90],c=>_bike(c,0,0,hd,t,col,moving),moving?null:['b',hd,col].join());
+  const L=(lx,ly)=>[sx+a*lx*1.25,sy+b*lx*1.25+ly*1.25];const hc=L(8.2,-26.4);
+  const [e1,e2]=latBar(ctx,hc[0],hc[1],hd,.24,'#2a2c33',1.2);for(const e of [e1,e2])ell(ctx,e[0],e[1],1.4,1,'#121317');
+  const cr=t*(moving?6:0);const bb=L(-.6,-7.4);const F=VFWD[hd];const po=P(-F[1]*.13,F[0]*.13);
+  for(const sgn of [-1,1]){const ph=cr+(sgn>0?0:Math.PI);const px=bb[0]+sgn*po[0]+a*Math.cos(ph)*4.2*1.25,py=bb[1]+sgn*po[1]+b*Math.cos(ph)*4.2*1.25+Math.sin(ph)*4.2*1.25;rrect(ctx,px-1.8,py-.6,3.6,1.3,.4,'#1b1c21')}
+  return [sx+r[0],sy+r[1]]}}
+
+/* ---------- física de caminhada: curvas arredondadas, aceleração e frenagem ---------- */
+const SMP=new WeakMap();
+function smoothPath(p){if(p.length<3)return p;let r=SMP.get(p);if(r)return r;r=[p[0]];
+  for(let i=1;i<p.length-1;i++){const a=p[i-1],b=p[i],c=p[i+1];const l1=Math.hypot(b[0]-a[0],b[1]-a[1]),l2=Math.hypot(c[0]-b[0],c[1]-b[1]);const R=Math.min(.38,l1*.45,l2*.45);
+    if(R<.03||!l1||!l2){r.push(b);continue}const p1=[b[0]+(a[0]-b[0])/l1*R,b[1]+(a[1]-b[1])/l1*R],p2=[b[0]+(c[0]-b[0])/l2*R,b[1]+(c[1]-b[1])/l2*R];
+    for(let k=0;k<=5;k++){const u=k/5,w0=(1-u)*(1-u),w1=2*u*(1-u),w2=u*u;r.push([w0*p1[0]+w1*b[0]+w2*p2[0],w0*p1[1]+w1*b[1]+w2*p2[1]])}}
+  r.push(p[p.length-1]);SMP.set(p,r);return r}
+{const _al=along;along=function(p,u){if(!p||p.length<2)return _al(p,u);const sp=smoothPath(p);const tot=plen(sp);if(tot<.01)return _al(sp,u);
+  const q=clamp(.4/tot,.04,.45),v=1/(1-q);u=clamp(u,0,1);let d;if(u<q)d=v*u*u/(2*q);else if(u<=1-q)d=v*(u-q/2);else d=1-v*(1-u)*(1-u)/(2*q);
+  return _al(sp,clamp(d,0,1))}}
+
+/* ---------- placas: o texto cabe na placa sem distorcer ---------- */
+function fitFont(ctx,txt,wt,size,maxW,min){min=min||2;let fs=size;ctx.font=`${wt} ${fs}px system-ui`;const w=ctx.measureText(txt).width;if(w>maxW){fs=Math.max(min,fs*maxW/w);ctx.font=`${wt} ${fs.toFixed(2)}px system-ui`}return fs}
+function secSign(ctx,list,x,y,z,txt,alongX,d){list.push({d,f:()=>{const T=txt.toUpperCase();ctx.font='800 5.4px system-ui';const tw=ctx.measureText(T).width;const w=Math.min(1.9,tw/35.8+.32);
+  ctx.save();if(alongX){vx(ctx,x,x+w,y+.06,z,z+9,'#22252e');const p0=P(x+w/2,y+.06,z+2.6);ctx.translate(p0[0],p0[1]);ctx.transform(.894,.447,0,1,0,0)}else{vy(ctx,y,y+w,x+.06,z,z+9,'#22252e');const p0=P(x+.06,y+w/2,z+2.6);ctx.translate(p0[0],p0[1]);ctx.transform(.894,-.447,0,1,0,0)}
+  ctx.fillStyle='#e8b54d';ctx.textAlign='center';fitFont(ctx,T,800,5.4,(w-.2)*35.8);ctx.fillText(T,0,0);ctx.textAlign='left';ctx.restore()}})}
+
+/* ---------- terreno ao lado da loja (vira estacionamento) ---------- */
+const NBF=29,NBD=38;
+function nbPrice(c){return Math.round(NBF*NBD*15*(envOf(c)==='centro'?2:1)/500)*500}
+function extCost(c,k){if(k==='estac'&&eLvl(c,'estac')===0)return nbPrice(c);return extCost0(c,k)}
+function nbSign(ctx,c){const [x,y]=P(15,7.6);softShadow(ctx,x,y,18,5,.3);ln(ctx,[[x-10,y],[x-10,y-28]],'#5b4a3a',2.2);ln(ctx,[[x+10,y],[x+10,y-28]],'#5b4a3a',2.2);
+  rrect(ctx,x-19,y-52,38,26,2.5,'#ffffff',EDGE);rrect(ctx,x-19,y-52,38,8,2.5,'#c8322a');ctx.fillStyle='#c8322a';ctx.fillRect(x-19,y-47,38,3);
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#fff';fitFont(ctx,'TERRENO À VENDA',900,5,34);ctx.fillText('TERRENO À VENDA',x,y-47.8);
+  ctx.fillStyle='#1d2433';const pr=kfmt(extCost(c,'estac'));fitFont(ctx,pr,900,8,34);ctx.fillText(pr,x,y-38.2);ctx.fillStyle='#5a6275';fitFont(ctx,NBF+' × '+NBD+' m',700,4.6,34);ctx.fillText(NBF+' × '+NBD+' m',x,y-30.6);ctx.textBaseline='alphabetic';ctx.textAlign='left'}
+function sheetNbLot(a){const c=findCo(a.id);if(!c)return head('Terreno');const price=extCost(c,'estac');const area=NBF*NBD;const lt={fm:NBF,dm:NBD,label:'estacionamento'};
+  return head('🏷️ Terreno ao lado da loja')+`<div class="sh-body"><div class="card">${lotPlan(lt)}
+    <div class="kv"><span>Onde</span><b>Ao lado de ${esc(c.name)}</b></div>
+    <div class="kv"><span>Tamanho</span><b>${NBF} × ${NBD} m</b></div>
+    <div class="kv"><span>Área</span><b>${area} m²</b></div>
+    <div class="kv"><span>Preço por m²</span><b>${fmt(Math.round(price/area))}</b></div>
+    <div class="kv"><span>Preço total</span><b class="gold">${fmt(price)}</b></div>
+    <p class="mu" style="font-size:13px;margin:8px 0 0">Comprando, o terreno vira o estacionamento da loja: <b>+6% de receita</b> e clientes chegando de carro. Depois dá para asfaltar, iluminar e cobrir em 🎨 Decorar → Área externa.</p></div>
+    <button class="btn" data-nb="1" style="width:100%" ${S.money<price?'disabled':''}>${S.money<price?'Faltam '+fmt(price-S.money):'Comprar terreno · '+fmt(price)}</button></div>`}
+sheetNbLot.bind2=(a,p)=>{const b=p.querySelector('[data-nb]');if(b)b.onclick=()=>{const c=findCo(a.id);if(!c)return;const k=extCost(c,'estac');if(S.money<k)return;S.money-=k;c.ext=c.ext||{};c.ext.estac=Math.max(1,eLvl(c,'estac'));S.rep=clamp(S.rep+1,0,100);gainXP(12);toast('🅿️ Terreno comprado! Agora é o estacionamento da loja.','good');sMeta=null;save();closeSheet();renderHUD()}};
+{const _hit=hitAt;hitAt=function(cv,ev){
+  if(!VH){const p=canvasWorld(cv,ev);const c=viewCompany();
+    if(p&&!c.empty){
+      if(eLvl(c,'estac')===0){const [x,y]=P(15,7.6);if(Math.hypot(p[0]-x,p[1]-(y-38))<30)return {type:'nblot',cid:c.id};
+        const gx=(p[0]/32+p[1]/16)/2,gy=(p[1]/16-p[0]/32)/2;if(gx>=12.4&&gx<18.2&&gy>=.5&&gy<8.1)return {type:'nblot',cid:c.id}}
+      const r=_hit(cv,ev);if(r&&r.type!=='floor'&&r.type!=='ext')return r;
+      const gx=(p[0]/32+p[1]/16)/2,gy=(p[1]/16-p[0]/32)/2;
+      for(const l of lotsHere(c)){const x0=l.x-.35,y0=l.y-.3,W=l.w||2.9,D=l.d||2.95;if(gx>=x0&&gx<=x0+W&&gy>=y0&&gy<=y0+D)return {type:'lot',id:l.id}}
+      return r}}
+  return _hit(cv,ev)}}
+{const _uh=useHit;useHit=function(hh){if(hh&&hh.type==='nblot'){openSheet(sheetNbLot,{id:hh.cid});return}return _uh.apply(this,arguments)}}
+
+/* ---------- canais de venda: app de delivery, loja online, redes sociais, marketplace ---------- */
+const CHAN=[
+  {k:'app',e:'📱',n:'App de delivery (PedeAí)',names:['Não cadastrado','Cadastrado no PedeAí','Destaque no app','Super Parceiro'],share:[0,.15,.26,.40],fee:.23,cost:[.5,1.1,2.2],d:'Pedidos pelo app, motoboys do PedeAí buscam na loja. Taxa de 23%.'},
+  {k:'site',e:'🛒',n:'Loja online',names:['Sem site','Site simples','Loja virtual completa','E-commerce com app próprio'],share:[0,.10,.20,.32],fee:.08,cost:[.7,1.5,3],d:'Venda pelo site, a transportadora busca os pacotes. Taxa de 8%.'},
+  {k:'social',e:'💬',n:'WhatsApp e Instagram',names:['Nada','Perfil e WhatsApp','Catálogo e anúncios','Parceria com influenciadores'],share:[0,.06,.12,.20],fee:0,cost:[.25,.7,1.6],d:'Clientes pedem pelo WhatsApp e pelo direct. Sem taxa.'},
+  {k:'mkt',e:'🏬',n:'Marketplace',names:['Fora do marketplace','Vendedor','Vendedor Platinum'],share:[0,.14,.26],fee:.16,cost:[.8,1.9],d:'Seus produtos nos grandes sites de compra. Taxa de 16%.',notFor:['alim']}];
+const chanOk=(c,ch)=>!(ch.notFor||[]).includes(c.ramo);
+const chanLvl=(c,k)=>(c.chan&&c.chan[k])||0;
+function chanBonus(c){if(!c||c.empty)return 0;let b=0;for(const ch of CHAN)if(chanOk(c,ch)){const lv=chanLvl(c,ch.k);b+=ch.share[lv]*(1-ch.fee)}return b}
+function chanCost(c,k){const ch=CHAN.find(x=>x.k===k);const lv=chanLvl(c,k);return Math.round(RAMOS[c.ramo].custo*ch.cost[Math.min(lv,ch.cost.length-1)]/50)*50}
+function chanRev(c,k){const ch=CHAN.find(x=>x.k===k);const lv=chanLvl(c,k);if(!lv)return 0;return compRevDay(c)/(1+chanBonus(c))*ch.share[lv]*(1-ch.fee)}
+{const _cm=compMult;compMult=function(c){return _cm(c)*(1+chanBonus(c))}}
+function chanCard(c){if(c.empty)return '';const tot=CHAN.filter(ch=>chanOk(c,ch)).reduce((a,ch)=>a+chanRev(c,ch.k),0);
+  let h=`<div class="card" style="padding:12px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><b style="font-size:16px">🌐 Vendas pela internet</b><small class="green" style="margin-left:auto;font-weight:800">${tot>0?'+'+fmt(Math.round(tot))+'/dia':''}</small></div>
+  <p class="mu" style="font-size:12.5px;margin:0 0 8px">Venda além do balcão: app de delivery, loja online e redes sociais. As taxas já vêm descontadas no ganho.</p>`;
+  for(const ch of CHAN){if(!chanOk(c,ch))continue;const lv=chanLvl(c,ch.k);const max=ch.names.length-1;const g=chanRev(c,ch.k);
+    const d={e:ch.e,n:ch.n+(lv?` · <span class="green">+${fmt(Math.round(g))}/dia</span>`:''),names:ch.names,d:ch.d+(lv<max?` Próximo nível: +${Math.round(ch.share[lv+1]*100)}% de vendas.`:'')};
+    h+=decoRow(c,d,lv,max,lv<max?chanCost(c,ch.k):0,`data-ch="${ch.k}"`,false)}
+  return h+'</div>'}
+{const _sc=sheetCo,_b2=sheetCo.bind2;sheetCo=function(a){let h=_sc(a);const c=findCo(a.id);if(!c)return h;const i=h.indexOf('<div class="acts">');return i<0?h+chanCard(c):h.slice(0,i)+chanCard(c)+h.slice(i)};
+  sheetCo.bind2=(a,p)=>{_b2(a,p);const c=findCo(a.id);if(!c)return;p.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{const k=b.dataset.ch;const ch=CHAN.find(x=>x.k===k);const lv=chanLvl(c,k);if(lv>=ch.names.length-1)return;const cost=chanCost(c,k);if(S.money<cost)return;
+    S.money-=cost;c.chan=c.chan||{};c.chan[k]=lv+1;gainXP(15);S.rep=clamp(S.rep+1,0,100);toast(`${ch.e} ${ch.names[lv+1]}! Vendas pela internet aumentando.`,'good');save();renderSheet();renderHUD()})}}
+/* motoboys do app, van da transportadora e pedidos chegando */
+const APPL={skin:'#a86a43',hair:'#1c1612',style:'short',outfit:'#e8352a',pants:'#22252e'};
+function chanVisuals(ctx,c,list,t){if(c.empty||!isOpen(c)||VH)return;const xs=(DOOR_OUT&&DOOR_OUT[0]!=null?DOOR_OUT[0]:1.6)+1.2;
+  const app=chanLvl(c,'app');
+  for(let i=0;i<app;i++){const Pd=36,u=(t+i*Pd/app+c.id*7)%Pd;let x,moving=true,y=10.0;
+    if(u<9){const k=u/9;x=46-(46-xs)*(1-(1-k)*(1-k));y=10.0-.25*k}else if(u<16){x=xs;moving=false;y=9.75}else if(u<25){const k=(u-16)/9;x=xs-(xs+38)*k*k;y=9.75+.25*Math.min(1,k*3)}else continue;
+    const L=lookToL(APPL,40+i);L.role='helmet';
+    list.push({d:x+y+.1,f:()=>{const seat=moto(ctx,x,y,'-x','#e8352a',true,t,moving,1);person(ctx,seat[0],seat[1],L,{face:'bl',pose:'ride',act:'ride',t});
+      if(!moving){const [px,py]=P(x,y,58+Math.sin(t*3)*2);rrect(ctx,px-13,py-9,26,11,4,'#ffffff',EDGE);ctx.fillStyle='#e8352a';ctx.textAlign='center';ctx.textBaseline='middle';fitFont(ctx,'🛵 pedido',800,6,22);ctx.fillText('🛵 pedido',px,py-3.4);ctx.textBaseline='alphabetic';ctx.textAlign='left'}}})}
+  const site=Math.max(chanLvl(c,'site'),chanLvl(c,'mkt'));
+  if(site){const Pd=Math.max(30,60-site*10),u=(t+c.id*13)%Pd;let x=null,y=11.15,mv=true;
+    if(u<8){const k=u/8;x=-40+(xs+3+40)*(1-(1-k)*(1-k))}else if(u<15){x=xs+3;mv=false}else if(u<23){const k=(u-15)/8;x=xs+3+(50-xs)*k*k}
+    if(x!=null)list.push({d:x+y+.1,f:()=>{car(ctx,x,y,'+x','#f4f6f8','van',mv?t:0);const [px,py]=P(x-.4,y,44);if(!mv){rrect(ctx,px-16,py-9,32,11,4,'#ffffff',EDGE);ctx.fillStyle='#2f6bd8';ctx.textAlign='center';ctx.textBaseline='middle';fitFont(ctx,'📦 coleta',800,6,28);ctx.fillText('📦 coleta',px,py-3.4);ctx.textBaseline='alphabetic';ctx.textAlign='left'}}});
+    const n=Math.min(6,2+site*2);list.push({d:xs+2.2+8.2,f:()=>{for(let i=0;i<n;i++){const bx=xs+1.7+(i%3)*.32,by=8.05+Math.floor(i/3)*.3;box(ctx,bx,by,.28,.26,9,'#c99a5e',(i>2?9:0),'#b8874f');ln(ctx,[P(bx+.14,by,(i>2?9:0)+9),P(bx+.14,by+.26,(i>2?9:0)+9)],'rgba(255,255,255,.6)',.8)}}})}
+  const act=CHAN.filter(ch=>chanOk(c,ch)&&chanLvl(c,ch.k));if(act.length){const per=4.5,k=Math.floor(t/per),u=(t%per)/per;const ch=act[k%act.length];const [px,py]=P(xs-1.2,8.3,70+u*40);
+    list.push({d:1e5-5,f:()=>{ctx.save();ctx.globalAlpha=Math.min(1,u*4)*(1-u);rrect(ctx,px-15,py-10,30,13,6,'rgba(20,26,44,.85)');ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';const tx=ch.e+' +1 pedido';fitFont(ctx,tx,800,6,26);ctx.fillText(tx,px,py-3.4);ctx.textBaseline='alphabetic';ctx.textAlign='left';ctx.restore()}})}}
+{const _eo=extObjects;extObjects=function(ctx,c,list,t,hits){_eo(ctx,c,list,t,hits);if(!UPPER)try{chanVisuals(ctx,c,list,t)}catch(e){}}}
 
 /* ================== MÚSICA (renderizada em áudio, toca no primeiro toque) ================== */
 const Music={el:null,on:(()=>{try{return localStorage.getItem('ceo_music')!=='0'}catch(e){return true}})(),want:false,fade:null,
@@ -4220,7 +4353,7 @@ function hoursCard(c){
 }
 
 /* ================== DECORAR + ÁREA EXTERNA ================== */
-function extCost(c,k){return Math.round(RAMOS[c.ramo].custo*.5*Math.pow(1.9,eLvl(c,k))/50)*50}
+function extCost0(c,k){return Math.round(RAMOS[c.ramo].custo*.5*Math.pow(1.9,eLvl(c,k))/50)*50}
 function extBonus(c){return eLvl(c,'estac')*6+eLvl(c,'calcada')*3}
 function decoRow(c,d,lv,max,cost,attr,focus){return `<div class="deco ${focus?'on':''}" ${focus?'id="decoFocus"':''}><div class="e">${d.e}</div><div class="m"><b>${d.n}</b><small>${d.names[lv]}${lv<max?` → <span class="gold">${d.names[lv+1]}</span>`:''}</small>${d.d?`<small style="display:block;color:#9fd8b4">${d.d}</small>`:''}<div class="pips sm">${Array.from({length:max},(_,j)=>`<i class="${j<lv?'f':''}"></i>`).join('')}</div></div>${lv<max?`<button class="btn sm" ${attr} ${S.money<cost?'disabled':''}>${fmt(cost)}</button>`:'<span class="gold" style="font-weight:800;font-size:13px">MÁX</span>'}</div>`}
 function sheetDecor0(a){
