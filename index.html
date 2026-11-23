@@ -424,8 +424,8 @@ small{font-size:12px}
 /* ================== DADOS ================== */
 const DAY = 840;            // segundos reais por dia de jogo
 const SAVE_KEY = 'ceo_imperio_v01';
-const VERSION = '1.8';
-const UPDATE_NOTE = 'Motos e bikes 3D, vendas por app de delivery e loja online, lote vizinho e placas corrigidas';
+const VERSION = '1.8.1';
+const UPDATE_NOTE = 'Motos e bikes 3D, vendas pela internet, lote vizinho, placas e personagens não aparecem mais em cima do telhado';
 
 const RAMOS = {
   alim:{nome:'Alimentação',e:'🍔',cor:'#ff8a4c',custo:3000,aluguel:60,base:320,sm:1.0,
@@ -3586,8 +3586,10 @@ function ceoAtWork(ctx,c,t,list,hits){
     if(u<.45){const k=u/.45;x=start[0]+(door[0]-start[0])*k;y=start[1]+(door[1]-start[1])*k;face='fl'}else{const k=(u-.45)/.55;x=door[0]+(end[0]-door[0])*k;y=door[1]+(end[1]-door[1])*k;face='bl'}pose='walk';act='walk'}
   else{const pts=g?[[8.3,6.5],[6.4,6.3],[8.9,4.2]]:[[4.3,6.6],[7.4,6.3],[2.4,6.9],[5.8,4.2]];const per=7;const i=Math.floor(t/per)%pts.length,j=(i+1)%pts.length;const ph=(t%per)/per;
     if(ph<.7){x=pts[i][0];y=pts[i][1];act=Math.floor(t/per)%2?'talk':'idle';face='fr'}else{const k=(ph-.7)/.3;x=pts[i][0]+(pts[j][0]-pts[i][0])*k;y=pts[i][1]+(pts[j][1]-pts[i][1])*k;pose='walk';act='walk';face=pts[j][0]-pts[i][0]-(pts[j][1]-pts[i][1])>0?'fr':'bl'}}
-  list.push({d:x+y+.02,f:()=>{const [px,py]=P(x,y);person(ctx,px,py,L,{face,pose,act,t});nameTag(ctx,px,py-62,'👑 '+S.ceo.name,'#e8b54d')}});
-  hits.push({w:[x,y],r:20,type:'ceo'})}
+  const ins=g?(x>=GX0-.05&&x<=GX1+.05&&y>=GY0-.05&&y<=GY1+.1):(x>=-.05&&x<=RW+.05&&y>=-.05&&y<=RD+.05);const ea=EXTA;
+  if(ins&&ea>=.99)return;
+  list.push({d:x+y+.02,f:()=>{const [px,py]=P(x,y);ctx.save();if(ins)ctx.globalAlpha=1-ea;person(ctx,px,py,L,{face,pose,act,t});nameTag(ctx,px,py-62,'👑 '+S.ceo.name,'#e8b54d');ctx.restore()}});
+  if(!ins||ea<.5)hits.push({w:[x,y],r:20,type:'ceo'})}
 function extObjects(ctx,c,list,t,hits){extObjects0(ctx,c,list,t,hits);if(!UPPER){ambientLife(ctx,c,t,list);lotLife(ctx,c,t,list,hits);ceoAtWork(ctx,c,t,list,hits)}}
 function ceoSleeping(){return !!(HMS.task&&HMS.task.started&&HMS.task.def.anim==='sleep')}
 function timeScale(anyOpen){if(anyOpen||!S.companies.length)return 1;if(S.where==='casa'&&!HMS.leaving)return ceoSleeping()?4:.45;return HMS.leaving?1:3}
